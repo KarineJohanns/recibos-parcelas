@@ -1,5 +1,6 @@
 package com.gerarecibos.recibos.controller;
 
+import com.gerarecibos.recibos.DTO.EmitenteDto;
 import com.gerarecibos.recibos.model.Emitente;
 import com.gerarecibos.recibos.service.EmitenteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +15,14 @@ public class EmitenteController {
     private EmitenteService emitenteService;
 
     @PostMapping
-    public ResponseEntity<Emitente> cadastrarEmitente(@RequestBody Emitente emitente) {
-        Emitente emitenteSalvo = emitenteService.cadastrarEmitente(emitente);
+    public ResponseEntity<Emitente> cadastrarEmitente(@RequestBody EmitenteDto emitenteDto) {
+        Emitente emitenteSalvo = emitenteService.cadastrarEmitente(emitenteDto);
         return ResponseEntity.ok(emitenteSalvo);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Emitente> obterEmitente(@PathVariable Long id) {
-        Emitente emitente = emitenteService.obterEmitentePorId(id);
+    @GetMapping("/{emitenteId}")
+    public ResponseEntity<Emitente> obterEmitente(@PathVariable Long emitenteId) {
+        Emitente emitente = emitenteService.obterEmitentePorId(emitenteId);
         return ResponseEntity.ok(emitente);
     }
 }

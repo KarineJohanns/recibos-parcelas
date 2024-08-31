@@ -28,8 +28,8 @@ public class ReciboService {
         document.add(new Paragraph("Recibo"));
         document.add(new Paragraph("Emitente: " + recibo.getEmitente()));
         document.add(new Paragraph("Detalhes: " + recibo.getConteudo()));
-        document.add(new Paragraph("Cliente: " + recibo.getParcela().getCliente().getNome()));
-        document.add(new Paragraph("Produto: " + recibo.getParcela().getProduto().getNome()));
+        document.add(new Paragraph("Cliente: " + recibo.getParcela().getCliente().getClienteNome()));
+        document.add(new Paragraph("Produto: " + recibo.getParcela().getProduto().getProdutoNome()));
         document.add(new Paragraph("Valor Pago: " + recibo.getParcela().getValorPago()));
         document.add(new Paragraph("Data de Pagamento: " + recibo.getParcela().getDataPagamento()));
 

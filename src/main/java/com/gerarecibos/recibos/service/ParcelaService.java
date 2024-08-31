@@ -6,6 +6,7 @@ import com.gerarecibos.recibos.DTO.EscolhaDto;
 import com.gerarecibos.recibos.model.*;
 import com.gerarecibos.recibos.repository.ClienteRepository;
 import com.gerarecibos.recibos.repository.ParcelaRepository;
+import com.gerarecibos.recibos.repository.EmitenteRepository;
 import com.gerarecibos.recibos.repository.ProdutoRepository;
 import com.gerarecibos.recibos.repository.ReciboRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class ParcelaService {
     @Autowired
     private EmitenteService emitenteService;
 
+    @Autowired
+    private EmitenteRepository emitenteRepository;
+
     public List<Parcela> criarParcelas(ParcelaDto parcelaDto) {
         Cliente cliente;
         if (parcelaDto.getClienteId() != null) {
@@ -41,17 +45,18 @@ public class ParcelaService {
         } else {
             // Cria um novo cliente se o ID não for fornecido
             cliente = new Cliente();
-            cliente.setNome(parcelaDto.getNomeCliente()); // Supondo que o DTO tenha um campo para o nome do cliente
+            cliente.setClienteNome(parcelaDto.getNomeCliente()); // Supondo que o DTO tenha um campo para o nome do cliente
             cliente = clienteRepository.save(cliente);
         }
+
         Produto produto;
         if (parcelaDto.getProdutoId() != null) {
             produto = produtoRepository.findById(parcelaDto.getProdutoId())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
         } else {
             produto = new Produto();
-            produto.setNome(parcelaDto.getNomeProduto()); // Nome do produto fornecido no DTO
-            produto.setValorTotal(parcelaDto.getValorTotalProduto()); // Valor total fornecido no DTO
+            produto.setProdutoNome(parcelaDto.getNomeProduto()); // Nome do produto fornecido no DTO
+            produto.setProdutoValorTotal(parcelaDto.getValorTotalProduto()); // Valor total fornecido no DTO
             produto = produtoRepository.save(produto);
         }
 
@@ -88,7 +93,7 @@ public class ParcelaService {
         double valorRestante = valorTotalParcela - valorPago;
 
         ParcelaResponseDto responseDto = new ParcelaResponseDto();
-        responseDto.setParcelaId(parcela.getId());
+        responseDto.setParcelaId(parcela.getParcelaId());
 
         if (valorPago < valorTotalParcela) {
             parcela.setPaga(true);
@@ -96,7 +101,7 @@ public class ParcelaService {
             parcela.setDataPagamento(dataPagamento);
             parcelaRepository.save(parcela);
 
-            gerarRecibo(parcela, valorPago, dataPagamento, true);
+            gerarRecibo(parcela, valorPago, dataPagamento, true, parcela.getEmitente().getEmitenteId());
 
             responseDto.setEscolhaNecessaria(true);
             responseDto.setMensagem("O valor pago é menor que o valor total da parcela. Escolha entre gerar novas parcelas ou aplicar um desconto.");
@@ -106,7 +111,7 @@ public class ParcelaService {
             parcela.setDataPagamento(dataPagamento);
             parcelaRepository.save(parcela);
 
-            gerarRecibo(parcela, valorPago, dataPagamento, false);
+            gerarRecibo(parcela, valorPago, dataPagamento, false, parcela.getEmitente().getEmitenteId());
 
             responseDto.setPaga(true);
             responseDto.setEscolhaNecessaria(false);
@@ -156,15 +161,22 @@ public class ParcelaService {
     }
 
 
-    private void gerarRecibo(Parcela parcela, Double valorPago, LocalDate dataPagamento, Boolean parcial) {
+    private void gerarRecibo(Parcela parcela, Double valorPago, LocalDate dataPagamento, Boolean parcial, Long emitenteId) {
         Recibo recibo = new Recibo();
         recibo.setParcela(parcela);
-        recibo.setEmitente("Nome do Emitente"); // Pode ser ajustado com o valor real
+
+        // Recuperar emitente do banco de dados
+        Emitente emitente = emitenteRepository.findById(emitenteId)
+                .orElseThrow(() -> new RuntimeException("Emitente não encontrado"));
+
+        recibo.setEmitente(emitente);
+
         if (parcial) {
-            recibo.setConteudo("Recibo parcial da parcela " + parcela.getId() + " no valor de " + valorPago + " pago na data " + dataPagamento);
+            recibo.setConteudo("Recibo parcial da parcela " + parcela.getParcelaId() + " no valor de " + valorPago + " pago na data " + dataPagamento);
         } else {
-            recibo.setConteudo("Recibo completo da parcela " + parcela.getId() + " no valor total de " + parcela.getValorParcela() + " pago na data " + dataPagamento);
+            recibo.setConteudo("Recibo completo da parcela " + parcela.getParcelaId() + " no valor total de " + parcela.getValorParcela() + " pago na data " + dataPagamento);
         }
+
         reciboRepository.save(recibo);
     }
 

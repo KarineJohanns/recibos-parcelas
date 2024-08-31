@@ -2,3 +2,4 @@ com\gerarecibos\recibos\service\ReciboServiceTest.class
 com\gerarecibos\recibos\RecibosApplicationTests.class
 com\gerarecibos\recibos\service\EmitenteServiceTest.class
 com\gerarecibos\recibos\service\ParcelaServiceTest.class
+com\gerarecibos\recibos\service\ClienteServiceTest.class

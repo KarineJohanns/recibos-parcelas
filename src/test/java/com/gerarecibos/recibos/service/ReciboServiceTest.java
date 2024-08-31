@@ -1,30 +1,36 @@
 package com.gerarecibos.recibos.service;
 
-import com.gerarecibos.recibos.model.Recibo;
-import com.gerarecibos.recibos.model.Parcela;
 import com.gerarecibos.recibos.model.Cliente;
+import com.gerarecibos.recibos.model.Emitente;
+import com.gerarecibos.recibos.model.Parcela;
 import com.gerarecibos.recibos.model.Produto;
+import com.gerarecibos.recibos.model.Recibo;
 import com.gerarecibos.recibos.repository.ReciboRepository;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfReader;
+import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 
-@ExtendWith(MockitoExtension.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
+@SpringBootTest
+@ActiveProfiles("test")
 public class ReciboServiceTest {
 
     @Mock
@@ -33,48 +39,61 @@ public class ReciboServiceTest {
     @InjectMocks
     private ReciboService reciboService;
 
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
     public void testGerarReciboPdf() throws IOException, com.gerarecibos.recibos.service.IOException {
-        // Setup mock data
+        // Configuração dos dados de teste
         Cliente cliente = new Cliente();
-        cliente.setNome("João da Silva");
+        cliente.setClienteNome("Cliente Teste");
 
         Produto produto = new Produto();
-        produto.setNome("Produto Teste");
+        produto.setProdutoNome("Produto Teste");
 
         Parcela parcela = new Parcela();
+        parcela.setParcelaId(1L);
         parcela.setCliente(cliente);
         parcela.setProduto(produto);
-        parcela.setValorPago(150.0);
-        parcela.setDataPagamento(LocalDate.now());
+        parcela.setValorPago(100.0);
+        parcela.setDataPagamento(LocalDate.of(2024, 8, 31));
+
+        Emitente emitente = new Emitente();
+        emitente.setEmitenteNome("Emitente Teste");
 
         Recibo recibo = new Recibo();
-        recibo.setEmitente("Emitente Teste");
+        recibo.setId(1L);
+        recibo.setEmitente(emitente);
         recibo.setConteudo("Detalhes do recibo");
         recibo.setParcela(parcela);
 
-        // Mock the repository
         when(reciboRepository.findById(1L)).thenReturn(Optional.of(recibo));
 
-        // Call the method to test
         byte[] pdfBytes = reciboService.gerarReciboPdf(1L);
 
-        // Verify the result
-        assertNotNull(pdfBytes);
-        assertTrue(pdfBytes.length > 0);
-
-        // Validate the content of the PDF
+        // Verificação básica do PDF gerado
         try (ByteArrayInputStream bais = new ByteArrayInputStream(pdfBytes);
-             PdfDocument pdfDocument = new PdfDocument(new PdfReader(bais))) {
+             PdfDocument pdfDoc = new PdfDocument(new PdfReader(bais))) {
 
-            assertTrue(pdfDocument.getNumberOfPages() > 0);
+            assertTrue(pdfDoc.getNumberOfPages() > 0);
 
-            // Optionally, validate content by reading text from the PDF
-            // Example: Extract text from the first page and verify it
-            // PdfPage page = pdfDocument.getPage(1);
-            // PdfTextExtractor textExtractor = new PdfTextExtractor(page);
-            // String pageText = textExtractor.getText();
-            // assertTrue(pageText.contains("Recibo"));
+            // Verificar se o conteúdo esperado está presente no PDF
+            String content = extractTextFromPdf(pdfDoc);
+            assertTrue(content.contains("Cliente Teste"));
+            assertTrue(content.contains("Produto Teste"));
+            assertTrue(content.contains("Emitente Teste"));
+            assertTrue(content.contains("Detalhes do recibo"));
         }
+    }
+
+    // Método para extrair o texto do PDF
+    private String extractTextFromPdf(PdfDocument pdfDoc) throws IOException {
+        StringBuilder text = new StringBuilder();
+        for (int i = 1; i <= pdfDoc.getNumberOfPages(); i++) {
+            text.append(PdfTextExtractor.getTextFromPage(pdfDoc.getPage(i)));
+        }
+        return text.toString();
     }
 }

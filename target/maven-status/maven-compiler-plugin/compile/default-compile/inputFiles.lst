@@ -1,6 +1,9 @@
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\ClienteController.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\EmitenteController.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\ParcelaController.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\ReciboController.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\ClienteDto.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\EmitenteDto.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\EscolhaDto.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\PagamentoDto.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\ParcelaDto.java
@@ -17,6 +20,7 @@ C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\repos
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\repository\ParcelaRepository.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\repository\ProdutoRepository.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\repository\ReciboRepository.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\service\ClienteService.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\service\EmitenteService.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\service\IOException.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\service\ParcelaService.java

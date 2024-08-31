@@ -2,10 +2,7 @@ package com.gerarecibos.recibos.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 
 @Entity
 @Data
@@ -16,14 +13,13 @@ public class Recibo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "parcela_id", nullable = false)
-    private Parcela parcela;
+    @ManyToOne
+    @JoinColumn(name = "emitente_id") // Referência ao emitente
+    private Emitente emitente;
 
-    private String emitente;
-
-    @Column(length = 2000)  // Define um tamanho máximo para o conteúdo
     private String conteudo;
 
-    // Getters e Setters gerados automaticamente pelo Lombok
+    @ManyToOne
+    @JoinColumn(name = "parcela_id") // Referência à parcela
+    private Parcela parcela;
 }

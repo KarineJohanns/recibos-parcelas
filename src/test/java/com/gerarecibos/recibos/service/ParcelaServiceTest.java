@@ -16,13 +16,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class ParcelaServiceTest {
 
@@ -57,13 +56,13 @@ public class ParcelaServiceTest {
         parcelaDto.setEmitenteId(1L);
 
         Cliente cliente = new Cliente();
-        cliente.setId(1L);
+        cliente.setClienteId(1L);
 
         Produto produto = new Produto();
-        produto.setId(1L);
+        produto.setProdutoId(1L);
 
         Emitente emitente = new Emitente();
-        emitente.setId(1L);
+        emitente.setEmitenteId(1L);
 
         // Configurar os mocks
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
@@ -109,5 +108,71 @@ public class ParcelaServiceTest {
 
         // Verifique se saveAll foi chamado com as parcelas esperadas
         verify(parcelaRepository).saveAll(parcelasEsperadas);
+    }
+
+    @Test
+    public void testCriarParcelasClienteNotFound() {
+        ParcelaDto parcelaDto = new ParcelaDto();
+        parcelaDto.setClienteId(1L);
+        parcelaDto.setProdutoId(1L);
+        parcelaDto.setValorTotalProduto(100.0);
+        parcelaDto.setNumeroParcelas(2);
+        parcelaDto.setEmitenteId(1L);
+
+        when(clienteRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            parcelaService.criarParcelas(parcelaDto);
+        });
+
+        assertEquals("Cliente não encontrado", exception.getMessage());
+    }
+
+    @Test
+    public void testCriarParcelasProdutoNotFound() {
+        ParcelaDto parcelaDto = new ParcelaDto();
+        parcelaDto.setClienteId(1L);
+        parcelaDto.setProdutoId(1L);
+        parcelaDto.setValorTotalProduto(100.0);
+        parcelaDto.setNumeroParcelas(2);
+        parcelaDto.setEmitenteId(1L);
+
+        Cliente cliente = new Cliente();
+        cliente.setClienteId(1L);
+
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+        when(produtoRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            parcelaService.criarParcelas(parcelaDto);
+        });
+
+        assertEquals("Produto não encontrado", exception.getMessage());
+    }
+
+    @Test
+    public void testCriarParcelasEmitenteNotFound() {
+        ParcelaDto parcelaDto = new ParcelaDto();
+        parcelaDto.setClienteId(1L);
+        parcelaDto.setProdutoId(1L);
+        parcelaDto.setValorTotalProduto(100.0);
+        parcelaDto.setNumeroParcelas(2);
+        parcelaDto.setEmitenteId(1L);
+
+        Cliente cliente = new Cliente();
+        cliente.setClienteId(1L);
+
+        Produto produto = new Produto();
+        produto.setProdutoId(1L);
+
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+        when(emitenteService.obterEmitentePorId(1L)).thenThrow(new RuntimeException("Emitente não encontrado"));
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            parcelaService.criarParcelas(parcelaDto);
+        });
+
+        assertEquals("Emitente não encontrado", exception.getMessage());
     }
 }
