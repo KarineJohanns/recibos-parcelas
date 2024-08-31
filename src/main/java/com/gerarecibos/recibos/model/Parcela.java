@@ -34,6 +34,10 @@ public class Parcela {
     private Double valorPago;
     private Double descontoAplicado = 0.0;
 
+    @ManyToOne
+    @JoinColumn(name = "emitente_id")  // Certifique-se de que esta coluna existe na tabela de Parcelas
+    private Emitente emitente;
+
     @OneToMany(mappedBy = "parcelaOriginal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Parcela> novasParcelas = new ArrayList<>(); // Lista de novas parcelas, se necessário
 

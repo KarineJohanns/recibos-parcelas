@@ -3,10 +3,7 @@ package com.gerarecibos.recibos.service;
 import com.gerarecibos.recibos.DTO.ParcelaDto;
 import com.gerarecibos.recibos.DTO.ParcelaResponseDto;
 import com.gerarecibos.recibos.DTO.EscolhaDto;
-import com.gerarecibos.recibos.model.Cliente;
-import com.gerarecibos.recibos.model.Parcela;
-import com.gerarecibos.recibos.model.Produto;
-import com.gerarecibos.recibos.model.Recibo;
+import com.gerarecibos.recibos.model.*;
 import com.gerarecibos.recibos.repository.ClienteRepository;
 import com.gerarecibos.recibos.repository.ParcelaRepository;
 import com.gerarecibos.recibos.repository.ProdutoRepository;
@@ -33,6 +30,9 @@ public class ParcelaService {
     @Autowired
     private ClienteRepository clienteRepository;
 
+    @Autowired
+    private EmitenteService emitenteService;
+
     public List<Parcela> criarParcelas(ParcelaDto parcelaDto) {
         Cliente cliente;
         if (parcelaDto.getClienteId() != null) {
@@ -55,6 +55,11 @@ public class ParcelaService {
             produto = produtoRepository.save(produto);
         }
 
+        Emitente emitente = null;
+        if (parcelaDto.getEmitenteId() != null) {
+            emitente = emitenteService.obterEmitentePorId(parcelaDto.getEmitenteId());
+        }
+
         List<Parcela> parcelas = new ArrayList<>();
         double valorParcela = parcelaDto.getValorTotalProduto() / parcelaDto.getNumeroParcelas();
 
@@ -64,6 +69,7 @@ public class ParcelaService {
             parcela.setProduto(produto);
             parcela.setNumeroParcelas(parcelaDto.getNumeroParcelas());
             parcela.setValorParcela(valorParcela);
+            parcela.setEmitente(emitente);
             parcelas.add(parcela);
         }
 

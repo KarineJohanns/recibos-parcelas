@@ -11,6 +11,7 @@ public class ParcelaDto {
     private String nomeProduto;
     private Double valorTotalProduto; // Valor total do produto
     private Integer numeroParcelas;
+    private Long emitenteId;
 
     // getters e setters
 }
