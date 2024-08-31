@@ -19,7 +19,7 @@ public class EmitenteController {
         Emitente emitenteSalvo = emitenteService.cadastrarEmitente(emitenteDto);
         return ResponseEntity.ok(emitenteSalvo);
     }
-
+    
     @GetMapping("/{emitenteId}")
     public ResponseEntity<Emitente> obterEmitente(@PathVariable Long emitenteId) {
         Emitente emitente = emitenteService.obterEmitentePorId(emitenteId);
