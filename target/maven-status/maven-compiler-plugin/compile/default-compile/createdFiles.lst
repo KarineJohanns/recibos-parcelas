@@ -4,6 +4,7 @@ com\gerarecibos\recibos\controller\ClienteController.class
 com\gerarecibos\recibos\controller\EmitenteController.class
 com\gerarecibos\recibos\repository\ProdutoRepository.class
 com\gerarecibos\recibos\DTO\ParcelaResponseDto.class
+com\gerarecibos\recibos\DTO\ProdutoDto.class
 com\gerarecibos\recibos\repository\ParcelaRepository.class
 com\gerarecibos\recibos\DTO\ParcelaPagamentoDto.class
 com\gerarecibos\recibos\DTO\EscolhaDto.class
@@ -18,8 +19,10 @@ com\gerarecibos\recibos\model\Cliente.class
 com\gerarecibos\recibos\service\ReciboService.class
 com\gerarecibos\recibos\controller\ReciboController.class
 com\gerarecibos\recibos\repository\ReciboRepository.class
+com\gerarecibos\recibos\service\ProdutoService.class
 com\gerarecibos\recibos\DTO\ParcelaDto.class
 com\gerarecibos\recibos\model\Produto.class
+com\gerarecibos\recibos\controller\ProdutoController.class
 com\gerarecibos\recibos\DTO\ClienteDto.class
 com\gerarecibos\recibos\service\ClienteService.class
 com\gerarecibos\recibos\service\EmitenteService.class

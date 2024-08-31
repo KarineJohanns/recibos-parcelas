@@ -1,6 +1,7 @@
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\ClienteController.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\EmitenteController.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\ParcelaController.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\ProdutoController.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\ReciboController.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\ClienteDto.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\EmitenteDto.java
@@ -9,6 +10,7 @@ C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\P
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\ParcelaDto.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\ParcelaPagamentoDto.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\ParcelaResponseDto.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\ProdutoDto.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\model\Cliente.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\model\Emitente.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\model\Parcela.java
@@ -24,4 +26,5 @@ C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\servi
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\service\EmitenteService.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\service\IOException.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\service\ParcelaService.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\service\ProdutoService.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\service\ReciboService.java
