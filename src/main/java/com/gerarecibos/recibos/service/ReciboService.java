@@ -19,29 +19,26 @@ public class ReciboService {
     private ReciboRepository reciboRepository;
 
     public byte[] gerarReciboPdf(Long reciboId) throws IOException {
+        // Obtenha o recibo do banco de dados
+        Recibo recibo = reciboRepository.findById(reciboId)
+                .orElseThrow(() -> new RuntimeException("Recibo não encontrado"));
 
-        Recibo recibo = reciboRepository.findById(reciboId).orElseThrow(() -> new RuntimeException("Recibo não encontrado"));
-
+        // Crie um documento PDF
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(baos);
-        PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf);
+        PdfDocument pdfDoc = new PdfDocument(writer);
+        Document document = new Document(pdfDoc);
 
-        // Adicionar os detalhes do emitente no formato correto
-        document.add(new Paragraph("Emitente:"));
-        document.add(new Paragraph("Nome: " + recibo.getEmitente().getEmitenteNome()));
-        document.add(new Paragraph("CPF: " + recibo.getEmitente().getEmitenteCpf()));
-        document.add(new Paragraph("Endereço: " + recibo.getEmitente().getEmitenteEndereco()));
-        document.add(new Paragraph("Telefone: " + recibo.getEmitente().getEmitenteTelefone()));
-
-        // Adicionar outros detalhes do recibo como cliente, produto, etc.
+        // Adicione o conteúdo ao PDF
+        document.add(new Paragraph("Emitente: " + recibo.getEmitente().getEmitenteNome()));
         document.add(new Paragraph("Cliente: " + recibo.getParcela().getCliente().getClienteNome()));
         document.add(new Paragraph("Produto: " + recibo.getParcela().getProduto().getProdutoNome()));
         document.add(new Paragraph("Valor Pago: " + recibo.getParcela().getValorPago()));
-        document.add(new Paragraph("Data de Pagamento: " + recibo.getParcela().getDataPagamento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+        document.add(new Paragraph("Data do Pagamento: " + recibo.getParcela().getDataPagamento()));
+        document.add(new Paragraph("Conteúdo: " + recibo.getConteudo()));
 
+        // Feche o documento
         document.close();
-
         return baos.toByteArray();
     }
 }

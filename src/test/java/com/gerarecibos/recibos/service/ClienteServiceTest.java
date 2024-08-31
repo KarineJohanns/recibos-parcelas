@@ -11,11 +11,12 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -70,6 +71,53 @@ public class ClienteServiceTest {
         assertEquals("12345678900", result.getClienteCpf());
         assertEquals("Rua Teste, 123", result.getClienteEndereco());
         assertEquals("11987654321", result.getClienteTelefone());
+    }
+
+    @Test
+    public void testListarTodosClientes() {
+        Cliente cliente1 = new Cliente(1L, "Cliente 1", "12345678901", "Endereço 1", "11998765432");
+        Cliente cliente2 = new Cliente(2L, "Cliente 2", "98765432109", "Endereço 2", "21987654321");
+
+        when(clienteRepository.findAll()).thenReturn(Arrays.asList(cliente1, cliente2));
+
+        List<Cliente> resultado = clienteService.listarTodosClientes();
+
+        assertNotNull(resultado);
+        assertEquals(2, resultado.size());
+        verify(clienteRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testEditarCliente() {
+        Cliente cliente = new Cliente(1L, "Cliente Teste", "12345678901", "Endereço Teste", "11998765432");
+
+        ClienteDto clienteDto = new ClienteDto();
+        clienteDto.setClienteNome("Cliente Editado");
+        clienteDto.setClienteCpf("98765432109");
+        clienteDto.setClienteEndereco("Endereço Editado");
+        clienteDto.setClienteTelefone("21987654321");
+
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+        when(clienteRepository.save(any(Cliente.class))).thenReturn(cliente);
+
+        Cliente resultado = clienteService.editarCliente(1L, clienteDto);
+
+        assertNotNull(resultado);
+        assertEquals("Cliente Editado", resultado.getClienteNome());
+        verify(clienteRepository, times(1)).findById(1L);
+        verify(clienteRepository, times(1)).save(any(Cliente.class));
+    }
+
+    @Test
+    public void testDeletarCliente() {
+        Cliente cliente = new Cliente(1L, "Cliente Teste", "12345678901", "Endereço Teste", "11998765432");
+
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+
+        clienteService.deletarCliente(1L);
+
+        verify(clienteRepository, times(1)).findById(1L);
+        verify(clienteRepository, times(1)).delete(cliente);
     }
 
     @Test

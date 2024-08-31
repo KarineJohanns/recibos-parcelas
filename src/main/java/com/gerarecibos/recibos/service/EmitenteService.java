@@ -1,10 +1,13 @@
 package com.gerarecibos.recibos.service;
 
 import com.gerarecibos.recibos.DTO.EmitenteDto;
+import com.gerarecibos.recibos.Exceptions.ResourceNotFoundException;
 import com.gerarecibos.recibos.model.Emitente;
 import com.gerarecibos.recibos.repository.EmitenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class EmitenteService {
@@ -21,8 +24,26 @@ public class EmitenteService {
         return emitenteRepository.save(emitente);
     }
 
-    public Emitente obterEmitentePorId(Long emitenteId) {
-        return emitenteRepository.findById(emitenteId)
-                .orElseThrow(() -> new RuntimeException("Emitente não encontrado"));
+    public Emitente obterEmitentePorId(Long id) {
+        return emitenteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Emitente não encontrado"));
+    }
+
+    public List<Emitente> listarTodosEmitentes() {
+        return emitenteRepository.findAll();
+    }
+
+    public Emitente editarEmitente(Long id, EmitenteDto emitenteDto) {
+        Emitente emitente = obterEmitentePorId(id);
+        emitente.setEmitenteNome(emitenteDto.getEmitenteNome());
+        emitente.setEmitenteCpf(emitenteDto.getEmitenteCpf());
+        emitente.setEmitenteEndereco(emitenteDto.getEmitenteEndereco());
+        emitente.setEmitenteTelefone(emitenteDto.getEmitenteTelefone());
+        return emitenteRepository.save(emitente);
+    }
+
+    public void deletarEmitente(Long id) {
+        Emitente emitente = obterEmitentePorId(id);
+        emitenteRepository.delete(emitente);
     }
 }

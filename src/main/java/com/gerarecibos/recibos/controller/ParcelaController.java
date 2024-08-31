@@ -8,6 +8,7 @@ import com.gerarecibos.recibos.model.Parcela;
 import com.gerarecibos.recibos.service.ParcelaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,14 +23,33 @@ public class ParcelaController {
     private ParcelaService parcelaService;
 
     @PostMapping
-    public ResponseEntity<List<Parcela>> cadastrarParcelas(@RequestBody ParcelaDto parcelaDto) {
-        List<Parcela> parcelas = parcelaService.criarParcelas(parcelaDto);
-        return ResponseEntity.ok(parcelas);
+    public ResponseEntity<List<Parcela>> criarParcelas(@RequestBody ParcelaDto parcelaDto) {
+        List<Parcela> novasParcelas = parcelaService.criarParcelas(parcelaDto);
+        return new ResponseEntity<>(novasParcelas, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Parcela> obterParcelaPorId(@PathVariable Long id) {
+        Parcela parcela = parcelaService.obterParcelaPorId(id);
+        return ResponseEntity.ok(parcela);
     }
 
     @GetMapping
-    public ResponseEntity<List<Parcela>> listarParcelas() {
-        return ResponseEntity.ok(parcelaService.listarParcelas());
+    public ResponseEntity<List<Parcela>> listarTodasParcelas() {
+        List<Parcela> parcelas = parcelaService.listarTodasParcelas();
+        return ResponseEntity.ok(parcelas);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Parcela> editarParcela(@PathVariable Long id, @RequestBody ParcelaDto parcelaDto) {
+        Parcela parcelaAtualizada = parcelaService.editarParcela(id, parcelaDto);
+        return ResponseEntity.ok(parcelaAtualizada);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarParcela(@PathVariable Long id) {
+        parcelaService.deletarParcela(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/pagar")

@@ -9,8 +9,6 @@ import com.gerarecibos.recibos.repository.ReciboRepository;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,11 +19,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -73,10 +71,15 @@ public class ReciboServiceTest {
 
         byte[] pdfBytes = reciboService.gerarReciboPdf(1L);
 
+        try (FileOutputStream fos = new FileOutputStream("recibo_test.pdf")) {
+            fos.write(pdfBytes);
+        }
+
         // Verificação básica do PDF gerado
         try (ByteArrayInputStream bais = new ByteArrayInputStream(pdfBytes);
              PdfDocument pdfDoc = new PdfDocument(new PdfReader(bais))) {
 
+            // Verifique se o PDF contém pelo menos uma página
             assertTrue(pdfDoc.getNumberOfPages() > 0);
 
             // Verificar se o conteúdo esperado está presente no PDF
@@ -92,8 +95,10 @@ public class ReciboServiceTest {
     private String extractTextFromPdf(PdfDocument pdfDoc) throws IOException {
         StringBuilder text = new StringBuilder();
         for (int i = 1; i <= pdfDoc.getNumberOfPages(); i++) {
-            text.append(PdfTextExtractor.getTextFromPage(pdfDoc.getPage(i)));
+            text.append(PdfTextExtractor.getTextFromPage(pdfDoc.getPage(i))).append("\n");
         }
         return text.toString();
     }
+
+
 }

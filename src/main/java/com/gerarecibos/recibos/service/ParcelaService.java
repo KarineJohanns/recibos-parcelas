@@ -3,6 +3,7 @@ package com.gerarecibos.recibos.service;
 import com.gerarecibos.recibos.DTO.ParcelaDto;
 import com.gerarecibos.recibos.DTO.ParcelaResponseDto;
 import com.gerarecibos.recibos.DTO.EscolhaDto;
+import com.gerarecibos.recibos.Exceptions.ResourceNotFoundException;
 import com.gerarecibos.recibos.model.*;
 import com.gerarecibos.recibos.repository.ClienteRepository;
 import com.gerarecibos.recibos.repository.ParcelaRepository;
@@ -81,8 +82,24 @@ public class ParcelaService {
         return parcelaRepository.saveAll(parcelas);
     }
 
-    public List<Parcela> listarParcelas() {
+    public Parcela obterParcelaPorId(Long id) {
+        return parcelaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Parcela não encontrada"));
+    }
+
+    public List<Parcela> listarTodasParcelas() {
         return parcelaRepository.findAll();
+    }
+
+    public Parcela editarParcela(Long id, ParcelaDto parcelaDto) {
+        Parcela parcela = obterParcelaPorId(id);
+        parcela.setValorParcela(parcelaDto.getValorTotalProduto() / parcelaDto.getNumeroParcelas());
+        return parcelaRepository.save(parcela);
+    }
+
+    public void deletarParcela(Long id) {
+        Parcela parcela = obterParcelaPorId(id);
+        parcelaRepository.delete(parcela);
     }
 
     public ParcelaResponseDto pagarParcela(Long id, Double valorPago, LocalDate dataPagamento, Boolean gerarNovasParcelas, Double desconto) {

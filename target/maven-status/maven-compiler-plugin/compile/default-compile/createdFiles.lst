@@ -1,5 +1,6 @@
 com\gerarecibos\recibos\model\Emitente.class
 com\gerarecibos\recibos\model\Recibo.class
+com\gerarecibos\recibos\Exceptions\ResourceNotFoundException.class
 com\gerarecibos\recibos\controller\ClienteController.class
 com\gerarecibos\recibos\controller\EmitenteController.class
 com\gerarecibos\recibos\repository\ProdutoRepository.class
