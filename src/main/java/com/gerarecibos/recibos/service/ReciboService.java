@@ -10,6 +10,8 @@ import com.itextpdf.layout.element.Paragraph;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
+
 @Service
 public class ReciboService {
 
@@ -25,13 +27,18 @@ public class ReciboService {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
-        document.add(new Paragraph("Recibo"));
-        document.add(new Paragraph("Emitente: " + recibo.getEmitente()));
-        document.add(new Paragraph("Detalhes: " + recibo.getConteudo()));
+        // Adicionar os detalhes do emitente no formato correto
+        document.add(new Paragraph("Emitente:"));
+        document.add(new Paragraph("Nome: " + recibo.getEmitente().getEmitenteNome()));
+        document.add(new Paragraph("CPF: " + recibo.getEmitente().getEmitenteCpf()));
+        document.add(new Paragraph("Endereço: " + recibo.getEmitente().getEmitenteEndereco()));
+        document.add(new Paragraph("Telefone: " + recibo.getEmitente().getEmitenteTelefone()));
+
+        // Adicionar outros detalhes do recibo como cliente, produto, etc.
         document.add(new Paragraph("Cliente: " + recibo.getParcela().getCliente().getClienteNome()));
         document.add(new Paragraph("Produto: " + recibo.getParcela().getProduto().getProdutoNome()));
         document.add(new Paragraph("Valor Pago: " + recibo.getParcela().getValorPago()));
-        document.add(new Paragraph("Data de Pagamento: " + recibo.getParcela().getDataPagamento()));
+        document.add(new Paragraph("Data de Pagamento: " + recibo.getParcela().getDataPagamento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
 
         document.close();
 
