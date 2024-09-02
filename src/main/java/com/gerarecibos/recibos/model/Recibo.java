@@ -22,4 +22,14 @@ public class Recibo {
     @MapsId
     @JoinColumn(name = "parcela_id") // Referência à parcela
     private Parcela parcela;
+
+    @Transient
+    private Cliente cliente;
+
+    @PostLoad
+    private void populateCliente() {
+        if (parcela != null) {
+            this.cliente = parcela.getCliente();
+        }
+    }
 }

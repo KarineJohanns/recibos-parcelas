@@ -60,7 +60,7 @@ public class ParcelaController {
         ParcelaResponseDto parcelaPaga = parcelaService.pagarParcela(
                 id,
                 dto.getValorPago(),
-                dto.getDataVencimento(),
+                dto.getDataPagamento(),
                 dto.getGerarNovasParcelas(),
                 dto.getDesconto()
         );

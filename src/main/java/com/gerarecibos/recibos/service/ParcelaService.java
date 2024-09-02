@@ -168,7 +168,10 @@ public class ParcelaService {
             parcela.setPaga(true);
             parcela.setValorPago(valorPago);
             parcela.setDataPagamento(dataPagamento); // Atualiza a data de pagamento
+            System.out.println("Data de Pagamento antes de salvar: " + parcela.getDataPagamento());
             parcelaRepository.save(parcela);
+            System.out.println("Parcela salva com data de pagamento: " + parcela.getDataPagamento());
+
 
             gerarRecibo(parcela, valorPago, dataPagamento, true, parcela.getEmitente().getEmitenteId());
 
@@ -178,7 +181,9 @@ public class ParcelaService {
             parcela.setPaga(true);
             parcela.setValorPago(valorPago);
             parcela.setDataPagamento(dataPagamento); // Atualiza a data de pagamento
+            System.out.println("Data de Pagamento antes de salvar: " + parcela.getDataPagamento());
             parcelaRepository.save(parcela);
+            System.out.println("Parcela salva com data de pagamento: " + parcela.getDataPagamento());
 
             gerarRecibo(parcela, valorPago, dataPagamento, false, parcela.getEmitente().getEmitenteId());
 
