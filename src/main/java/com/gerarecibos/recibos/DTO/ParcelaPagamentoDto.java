@@ -10,7 +10,7 @@ public class ParcelaPagamentoDto {
     private Double valorPago;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDate dataPagamento;
+    private LocalDate dataVencimento;
 
     private Boolean gerarNovasParcelas;
     private Double desconto;

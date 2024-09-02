@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 public class Recibo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -20,6 +19,7 @@ public class Recibo {
     private String conteudo;
 
     @ManyToOne
+    @MapsId
     @JoinColumn(name = "parcela_id") // Referência à parcela
     private Parcela parcela;
 }

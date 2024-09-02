@@ -56,7 +56,7 @@ public class ReciboServiceTest {
         parcela.setCliente(cliente);
         parcela.setProduto(produto);
         parcela.setValorPago(100.0);
-        parcela.setDataPagamento(LocalDate.of(2024, 8, 31));
+        parcela.setDataVencimento(LocalDate.of(2024, 8, 31));
 
         Emitente emitente = new Emitente();
         emitente.setEmitenteNome("Emitente Teste");
