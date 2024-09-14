@@ -35,6 +35,11 @@ public class ProdutoController {
         return ResponseEntity.ok(produtos);
     }
 
+    @GetMapping("/buscar")
+    public List<Produto> buscarPorNome(@RequestParam("nome") String nome) {
+        return produtoService.buscarPorNome(nome);
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<Produto> editarProduto(@PathVariable Long id, @RequestBody ProdutoDto produtoDto) {
         Produto produtoAtualizado = produtoService.editarProduto(id, produtoDto);

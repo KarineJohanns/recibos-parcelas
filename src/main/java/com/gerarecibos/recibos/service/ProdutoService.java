@@ -28,6 +28,10 @@ public class ProdutoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
     }
 
+    public List<Produto> buscarPorNome(String nome) {
+        return produtoRepository.searchByNome(nome);
+    }
+
     public List<Produto> listarTodosProdutos() {
         return produtoRepository.findAll();
     }

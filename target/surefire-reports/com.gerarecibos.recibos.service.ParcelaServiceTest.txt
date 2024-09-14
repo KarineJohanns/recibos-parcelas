@@ -1,42 +1,22 @@
 -------------------------------------------------------------------------------
 Test set: com.gerarecibos.recibos.service.ParcelaServiceTest
 -------------------------------------------------------------------------------
-Tests run: 7, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 1.177 s <<< FAILURE! -- in com.gerarecibos.recibos.service.ParcelaServiceTest
-com.gerarecibos.recibos.service.ParcelaServiceTest.testProcessarEscolhaAplicarDesconto -- Time elapsed: 0.882 s <<< FAILURE!
-org.opentest4j.AssertionFailedError: expected: <10.0> but was: <90.0>
-	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
-	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
-	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
-	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)
-	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:177)
-	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:898)
-	at com.gerarecibos.recibos.service.ParcelaServiceTest.testProcessarEscolhaAplicarDesconto(ParcelaServiceTest.java:175)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.915 s <<< FAILURE! -- in com.gerarecibos.recibos.service.ParcelaServiceTest
+com.gerarecibos.recibos.service.ParcelaServiceTest.testCriarParcelas -- Time elapsed: 0.900 s <<< FAILURE!
+Wanted but not invoked:
+parcelaRepository.save(
+    <any com.gerarecibos.recibos.model.Parcela>
+);
+-> at com.gerarecibos.recibos.service.ParcelaServiceTest.testCriarParcelas(ParcelaServiceTest.java:81)
 
-com.gerarecibos.recibos.service.ParcelaServiceTest.testAplicarDesconto -- Time elapsed: 0.014 s <<< FAILURE!
-org.opentest4j.AssertionFailedError: expected: <true> but was: <false>
-	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
-	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
-	at org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
-	at org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
-	at org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:31)
-	at org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:183)
-	at com.gerarecibos.recibos.service.ParcelaServiceTest.testAplicarDesconto(ParcelaServiceTest.java:191)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+However, there was exactly 1 interaction with this mock:
+parcelaRepository.saveAll(
+    [Parcela(parcelaId=null, cliente=Cliente(clienteId=1, clienteNome=null, clienteCpf=null, clienteEndereco=null, clienteTelefone=null), produto=Produto(produtoId=1, produtoNome=null, produtoValorTotal=null, produtoDescricao=null), numeroParcelas=5, valorParcela=200.0, paga=false, valorPago=null, descontoAplicado=0.0, emitente=Emitente(emitenteId=1, emitenteNome=null, emitenteCpf=null, emitenteEndereco=null, emitenteTelefone=null), novasParcelas=[], numeroParcela=1, intervalo=SEMANAL, dataCriacao=2024-09-04, dataVencimento=2024-09-04, dataPagamento=null), Parcela(parcelaId=null, cliente=Cliente(clienteId=1, clienteNome=null, clienteCpf=null, clienteEndereco=null, clienteTelefone=null), produto=Produto(produtoId=1, produtoNome=null, produtoValorTotal=null, produtoDescricao=null), numeroParcelas=5, valorParcela=200.0, paga=false, valorPago=null, descontoAplicado=0.0, emitente=Emitente(emitenteId=1, emitenteNome=null, emitenteCpf=null, emitenteEndereco=null, emitenteTelefone=null), novasParcelas=[], numeroParcela=2, intervalo=SEMANAL, dataCriacao=2024-09-04, dataVencimento=2024-09-11, dataPagamento=null), Parcela(parcelaId=null, cliente=Cliente(clienteId=1, clienteNome=null, clienteCpf=null, clienteEndereco=null, clienteTelefone=null), produto=Produto(produtoId=1, produtoNome=null, produtoValorTotal=null, produtoDescricao=null), numeroParcelas=5, valorParcela=200.0, paga=false, valorPago=null, descontoAplicado=0.0, emitente=Emitente(emitenteId=1, emitenteNome=null, emitenteCpf=null, emitenteEndereco=null, emitenteTelefone=null), novasParcelas=[], numeroParcela=3, intervalo=SEMANAL, dataCriacao=2024-09-04, dataVencimento=2024-09-18, dataPagamento=null), Parcela(parcelaId=null, cliente=Cliente(clienteId=1, clienteNome=null, clienteCpf=null, clienteEndereco=null, clienteTelefone=null), produto=Produto(produtoId=1, produtoNome=null, produtoValorTotal=null, produtoDescricao=null), numeroParcelas=5, valorParcela=200.0, paga=false, valorPago=null, descontoAplicado=0.0, emitente=Emitente(emitenteId=1, emitenteNome=null, emitenteCpf=null, emitenteEndereco=null, emitenteTelefone=null), novasParcelas=[], numeroParcela=4, intervalo=SEMANAL, dataCriacao=2024-09-04, dataVencimento=2024-09-25, dataPagamento=null), Parcela(parcelaId=null, cliente=Cliente(clienteId=1, clienteNome=null, clienteCpf=null, clienteEndereco=null, clienteTelefone=null), produto=Produto(produtoId=1, produtoNome=null, produtoValorTotal=null, produtoDescricao=null), numeroParcelas=5, valorParcela=200.0, paga=false, valorPago=null, descontoAplicado=0.0, emitente=Emitente(emitenteId=1, emitenteNome=null, emitenteCpf=null, emitenteEndereco=null, emitenteTelefone=null), novasParcelas=[], numeroParcela=5, intervalo=SEMANAL, dataCriacao=2024-09-04, dataVencimento=2024-10-02, dataPagamento=null)]
+);
+-> at com.gerarecibos.recibos.service.ParcelaService.criarParcelas(ParcelaService.java:70)
 
-com.gerarecibos.recibos.service.ParcelaServiceTest.testProcessarEscolhaGerarNovasParcelas -- Time elapsed: 0.092 s <<< FAILURE!
-org.opentest4j.AssertionFailedError: expected: <2> but was: <0>
-	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
-	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
-	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
-	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
-	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:145)
-	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:531)
-	at com.gerarecibos.recibos.service.ParcelaServiceTest.testProcessarEscolhaGerarNovasParcelas(ParcelaServiceTest.java:151)
+
+	at com.gerarecibos.recibos.service.ParcelaServiceTest.testCriarParcelas(ParcelaServiceTest.java:81)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)

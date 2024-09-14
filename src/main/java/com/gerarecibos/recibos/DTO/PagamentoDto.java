@@ -7,6 +7,6 @@ import java.time.LocalDate;
 
 @Data
 public class PagamentoDto {
-    private Double valorPago;
+    private Integer valorPago;
     private LocalDate dataVencimento;
 }

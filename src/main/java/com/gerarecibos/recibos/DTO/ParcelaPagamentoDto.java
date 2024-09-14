@@ -7,11 +7,11 @@ import java.time.LocalDate;
 
 @Data
 public class ParcelaPagamentoDto {
-    private Double valorPago;
+    private Integer valorPago;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dataPagamento;
 
     private Boolean gerarNovasParcelas;
-    private Double desconto;
+    private Integer desconto;
 }

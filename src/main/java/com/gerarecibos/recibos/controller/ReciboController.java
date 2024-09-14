@@ -25,7 +25,11 @@ public class ReciboController {
             byte[] pdf = reciboService.gerarReciboPdf(id);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("filename", "recibo.pdf");
+
+            // Define o nome do arquivo com o ID da parcela
+            String fileName = "Recibo_parcela_" + id + ".pdf";
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");  // Usar 'attachment' para download
+
             return new ResponseEntity<>(pdf, headers, HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

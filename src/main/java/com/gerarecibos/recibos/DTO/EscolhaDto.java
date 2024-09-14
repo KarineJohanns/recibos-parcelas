@@ -13,5 +13,6 @@ public class EscolhaDto {
     private Integer numeroParcelasRenegociacao;
     private String novoIntervalo;
     private LocalDate dataPrimeiraParcela;
+    Integer valorTotalParcela;
 
 }

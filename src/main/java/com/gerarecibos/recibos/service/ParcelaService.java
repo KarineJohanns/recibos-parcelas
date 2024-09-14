@@ -10,6 +10,8 @@ import com.gerarecibos.recibos.repository.ParcelaRepository;
 import com.gerarecibos.recibos.repository.EmitenteRepository;
 import com.gerarecibos.recibos.repository.ProdutoRepository;
 import com.gerarecibos.recibos.repository.ReciboRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,32 +40,46 @@ public class ParcelaService {
     @Autowired
     private EmitenteRepository emitenteRepository;
 
+    @Transactional
     public List<Parcela> criarParcelas(ParcelaDto parcelaDto) {
         Cliente cliente = obterOuCriarCliente(parcelaDto);
         Produto produto = obterOuCriarProduto(parcelaDto);
         Emitente emitente = obterEmitente(parcelaDto.getEmitenteId());
 
         List<Parcela> parcelas = new ArrayList<>();
-        double valorParcela = parcelaDto.getValorTotalProduto() / parcelaDto.getNumeroParcelas();
-        // Usa a data fornecida diretamente
-        LocalDate dataVencimento = parcelaDto.getDataCriacao();
+        int valorTotalProduto = parcelaDto.getValorTotalProduto();
+        int numeroParcelas = parcelaDto.getNumeroParcelas();
+
+        // Calcula o valor da parcela, arredondando corretamente
+        int valorParcela = valorTotalProduto / numeroParcelas;
+        int resto = valorTotalProduto % numeroParcelas;
+
+        // Usa a data de vencimento fornecida ou a data de criação como ponto de partida
+        LocalDate dataVencimento = parcelaDto.getDataVencimento() != null
+                ? parcelaDto.getDataVencimento()
+                : parcelaDto.getDataCriacao();
+
         LocalDate dataCriacao = parcelaDto.getDataCriacao();
 
-        for (int i = 1; i <= parcelaDto.getNumeroParcelas(); i++) {
+        for (int i = 1; i <= numeroParcelas; i++) {
             Parcela parcela = new Parcela();
             parcela.setCliente(cliente);
             parcela.setProduto(produto);
-            parcela.setNumeroParcelas(parcelaDto.getNumeroParcelas());
+            parcela.setNumeroParcelas(numeroParcelas);
             parcela.setValorParcela(valorParcela);
             parcela.setEmitente(emitente);
-            parcela.setDataCriacao(dataCriacao); // Define a data de criação da parcela
-            parcela.setDataVencimento(dataVencimento); // Inicialmente igual à data de criação
-            parcela.setNumeroParcela(i); // Define o número da parcela
-            parcela.setIntervalo((parcelaDto.getIntervalo()));
+            parcela.setDataCriacao(dataCriacao);
+            parcela.setDataVencimento(dataVencimento);
+            parcela.setNumeroParcela(i);
+            parcela.setIntervalo(parcelaDto.getIntervalo());
 
             parcelas.add(parcela);
 
-            // Calcula a próxima data de pagamento
+            // Se houver um resto, adiciona 1 à última parcela
+            if (i == numeroParcelas && resto > 0) {
+                parcela.setValorParcela(valorParcela + resto);
+            }
+
             dataVencimento = calcularProximaDataVencimento(dataVencimento, parcelaDto.getIntervalo());
         }
 
@@ -145,7 +161,8 @@ public class ParcelaService {
 
     public Parcela editarParcela(Long id, ParcelaDto parcelaDto) {
         Parcela parcela = obterParcelaPorId(id);
-        parcela.setValorParcela(parcelaDto.getValorTotalProduto() / parcelaDto.getNumeroParcelas());
+        parcela.setValorParcela(parcelaDto.getValorParcela());
+        parcela.setDataVencimento(parcelaDto.getDataVencimento());
         return parcelaRepository.save(parcela);
     }
 
@@ -154,12 +171,12 @@ public class ParcelaService {
         parcelaRepository.delete(parcela);
     }
 
-    public ParcelaResponseDto pagarParcela(Long id, Double valorPago, LocalDate dataPagamento, Boolean gerarNovasParcelas, Double desconto) {
+    public ParcelaResponseDto pagarParcela(Long id, Integer valorPago, LocalDate dataPagamento, Boolean gerarNovasParcelas, Integer desconto) {
         Parcela parcela = parcelaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Parcela não encontrada"));
 
-        double valorTotalParcela = parcela.getValorParcela();
-        double valorRestante = valorTotalParcela - valorPago;
+        int valorTotalParcela = parcela.getValorParcela();
+        int valorRestante = valorTotalParcela - valorPago;
 
         ParcelaResponseDto responseDto = new ParcelaResponseDto();
         responseDto.setParcelaId(parcela.getParcelaId());
@@ -167,11 +184,8 @@ public class ParcelaService {
         if (valorPago < valorTotalParcela) {
             parcela.setPaga(true);
             parcela.setValorPago(valorPago);
-            parcela.setDataPagamento(dataPagamento); // Atualiza a data de pagamento
-            System.out.println("Data de Pagamento antes de salvar: " + parcela.getDataPagamento());
+            parcela.setDataPagamento(dataPagamento);
             parcelaRepository.save(parcela);
-            System.out.println("Parcela salva com data de pagamento: " + parcela.getDataPagamento());
-
 
             gerarRecibo(parcela, valorPago, dataPagamento, true, parcela.getEmitente().getEmitenteId());
 
@@ -180,10 +194,8 @@ public class ParcelaService {
         } else {
             parcela.setPaga(true);
             parcela.setValorPago(valorPago);
-            parcela.setDataPagamento(dataPagamento); // Atualiza a data de pagamento
-            System.out.println("Data de Pagamento antes de salvar: " + parcela.getDataPagamento());
+            parcela.setDataPagamento(dataPagamento);
             parcelaRepository.save(parcela);
-            System.out.println("Parcela salva com data de pagamento: " + parcela.getDataPagamento());
 
             gerarRecibo(parcela, valorPago, dataPagamento, false, parcela.getEmitente().getEmitenteId());
 
@@ -195,7 +207,9 @@ public class ParcelaService {
         return responseDto;
     }
 
-    private void criarNovasParcelas(Parcela parcelaOriginal, Double valorRestante, int numeroParcelas, String novoIntervalo, LocalDate dataPrimeiraParcela) {
+    public ParcelaResponseDto criarNovasParcelas(Parcela parcelaOriginal, int valorRestante, int numeroParcelas, String novoIntervalo, LocalDate dataPrimeiraParcela) {
+        ParcelaResponseDto responseDto = new ParcelaResponseDto();
+
         Cliente cliente = parcelaOriginal.getCliente();
         Produto produto = parcelaOriginal.getProduto();
 
@@ -205,8 +219,9 @@ public class ParcelaService {
         // Se uma data específica para a primeira parcela for fornecida, usa essa data; caso contrário, usa a data de vencimento da parcela original
         LocalDate dataVencimento = (dataPrimeiraParcela != null) ? dataPrimeiraParcela : parcelaOriginal.getDataVencimento();
 
-        // Calcula o valor de cada nova parcela
-        double valorParcela = valorRestante / numeroParcelas;
+        // Calcula o valor de cada nova parcela, arredondando corretamente
+        int valorParcela = valorRestante / numeroParcelas;
+        int resto = valorRestante % numeroParcelas;
 
         // Lista para armazenar as novas parcelas
         List<Parcela> novasParcelas = new ArrayList<>();
@@ -215,14 +230,19 @@ public class ParcelaService {
             Parcela novaParcela = new Parcela();
             novaParcela.setCliente(cliente);
             novaParcela.setProduto(produto);
-            novaParcela.setNumeroParcelas(numeroParcelas); // Número total de parcelas
-            novaParcela.setValorParcela(valorParcela); // Valor de cada parcela
-            novaParcela.setIntervalo(intervalo); // Define o intervalo
-            novaParcela.setDataCriacao(LocalDate.now()); // Define a data de criação
-            novaParcela.setDataVencimento(dataVencimento); // Define a data de vencimento inicial
-            novaParcela.setNumeroParcela(i); // Define o número da parcela
+            novaParcela.setNumeroParcelas(numeroParcelas);
+            novaParcela.setValorParcela(valorParcela);
+            novaParcela.setIntervalo(intervalo);
+            novaParcela.setDataCriacao(LocalDate.now());
+            novaParcela.setDataVencimento(dataVencimento);
+            novaParcela.setNumeroParcela(i);
             novaParcela.setParcelaOriginal(parcelaOriginal);
             novaParcela.setEmitente(parcelaOriginal.getEmitente());
+
+            // Adiciona o resto à última parcela
+            if (i == numeroParcelas && resto > 0) {
+                novaParcela.setValorParcela(valorParcela + resto);
+            }
 
             // Adiciona a nova parcela à lista
             novasParcelas.add(novaParcela);
@@ -233,24 +253,38 @@ public class ParcelaService {
 
         // Salva todas as novas parcelas no banco de dados
         parcelaRepository.saveAll(novasParcelas);
+
+        // Preenche o responseDto com as informações adequadas
+        responseDto.setMensagem("Novas parcelas criadas com sucesso.");
+
+        return responseDto;
     }
 
-    public void aplicarDesconto(Parcela parcela, Double valorRestante) {
-        // Calcula o desconto como a diferença entre o valor total da parcela e o valor pago
-        double desconto = valorRestante;
+    public ParcelaResponseDto aplicarDesconto(Parcela parcela, Integer valorRestante) {
+        ParcelaResponseDto responseDto = new ParcelaResponseDto();
 
-        // Aplica o desconto ao valor restante da parcela
-        //parcela.setValorParcela(parcela.getValorParcela() - desconto);
+        // O valor do desconto é a diferença entre o valor original da parcela e o valor pago
+        Integer desconto = parcela.getValorParcela() - valorRestante;
 
-        // Marcar como paga (ou parcialmente paga, dependendo da lógica)
-        if (parcela.getValorParcela() == 0) {
+        // Atualiza o valor pago e o desconto aplicado na parcela
+        parcela.setValorPago(valorRestante);
+        parcela.setDescontoAplicado(desconto);
+
+        // Marca a parcela como paga se o valor pago for igual ou superior ao valor da parcela
+        if (valorRestante >= parcela.getValorParcela()) {
             parcela.setPaga(true);
         }
 
         parcelaRepository.save(parcela);
+
+        // Preenche o responseDto com as informações adequadas
+        responseDto.setPaga(parcela.getPaga());
+        responseDto.setMensagem("Desconto aplicado com sucesso. A parcela foi paga.");
+
+        return responseDto;
     }
 
-    private void gerarRecibo(Parcela parcela, Double valorPago, LocalDate dataPagamento, Boolean parcial, Long emitenteId) {
+    private void gerarRecibo(Parcela parcela, long valorPago, LocalDate dataPagamento, Boolean parcial, Long emitenteId) {
         Recibo recibo = new Recibo();
         // O ID do recibo será o mesmo que o ID da parcela
         recibo.setId(parcela.getParcelaId());
@@ -263,27 +297,29 @@ public class ParcelaService {
         recibo.setEmitente(emitente);
 
         if (parcial) {
-            recibo.setConteudo("Recibo parcial da parcela " + parcela.getParcelaId() + " no valor de " + valorPago + " pago na data " + dataPagamento);
+            recibo.setConteudo("Recibo parcial da parcela " + parcela.getParcelaId() + " no valor de " + valorPago / 100.0 + " pago na data " + dataPagamento);
         } else {
-            recibo.setConteudo("Recibo completo da parcela " + parcela.getParcelaId() + " no valor total de " + parcela.getValorParcela() + " pago na data " + dataPagamento);
+            recibo.setConteudo("Recibo completo da parcela " + parcela.getParcelaId() + " no valor total de " + parcela.getValorParcela() / 100.0 + " pago na data " + dataPagamento);
         }
 
         reciboRepository.save(recibo);
     }
 
-    public Parcela processarEscolha(Long id, EscolhaDto escolhaDto) {
+    public ParcelaResponseDto processarEscolha(Long id, EscolhaDto escolhaDto) {
         // Recupera a parcela original a partir do ID
         Parcela parcela = parcelaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Parcela não encontrada"));
 
-        // Calcula o valor restante a ser pago
-        double valorRestante = parcela.getValorParcela() - parcela.getValorPago();
+        // Calcula o valor restante a ser pago como um valor inteiro (em centavos)
+        int valorRestante = parcela.getValorParcela() - parcela.getValorPago();
 
         // Marca a parcela original como paga
         parcela.setPaga(true);
         parcelaRepository.save(parcela); // Salva a alteração no banco de dados
 
         gerarRecibo(parcela, parcela.getValorPago(), parcela.getDataPagamento(), false, parcela.getEmitente().getEmitenteId());
+
+        ParcelaResponseDto responseDto = new ParcelaResponseDto();
 
         // Verifica se novas parcelas devem ser geradas
         if (Boolean.TRUE.equals(escolhaDto.getGerarNovasParcelas())) {
@@ -293,12 +329,29 @@ public class ParcelaService {
             String novoIntervalo = escolhaDto.getNovoIntervalo() != null ? escolhaDto.getNovoIntervalo() : parcela.getIntervalo();
             LocalDate dataPrimeiraParcela = escolhaDto.getDataPrimeiraParcela();  // Novo campo
 
+            // Ajusta a criação de novas parcelas para tratar valores em centavos
             criarNovasParcelas(parcela, valorRestante, numeroParcelas, novoIntervalo, dataPrimeiraParcela);
+
+            responseDto.setMensagem("Novas parcelas foram criadas com sucesso.");
         } else {
-            aplicarDesconto(parcela, valorRestante);
+            // Aplicar desconto se novas parcelas não forem geradas
+            responseDto = aplicarDesconto(parcela, valorRestante);
         }
 
-        return parcela;
+        return responseDto;
     }
 
+
+    public void desfazerPagamento(Long id) throws EntityNotFoundException {
+        Parcela parcela = parcelaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Parcela não encontrada"));
+
+        // Verifica se a parcela está marcada como paga e, se estiver, a marca como não paga
+        if (parcela.isPaga()) {
+            parcela.setPaga(false);
+            parcela.setDataPagamento(null); // Removendo a data de pagamento, se necessário
+            parcela.setValorPago(0); // Revertendo o valor pago, se necessário
+            parcelaRepository.save(parcela);
+        }
+    }
 }

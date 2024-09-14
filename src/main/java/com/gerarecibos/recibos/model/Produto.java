@@ -20,7 +20,7 @@ public class Produto {
 
     private String produtoNome;
 
-    private Double produtoValorTotal;
+    private Integer produtoValorTotal;
 
     private String produtoDescricao; // Novo campo para descrição
 }

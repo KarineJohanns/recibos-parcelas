@@ -6,6 +6,7 @@ import com.gerarecibos.recibos.DTO.ParcelaPagamentoDto;
 import com.gerarecibos.recibos.DTO.ParcelaResponseDto;
 import com.gerarecibos.recibos.model.Parcela;
 import com.gerarecibos.recibos.service.ParcelaService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,6 @@ public class ParcelaController {
         Parcela parcela = parcelaService.obterParcelaPorId(id);
         return ResponseEntity.ok(parcela);
     }
-
     @GetMapping
     public ResponseEntity<List<Parcela>> listarTodasParcelas() {
         List<Parcela> parcelas = parcelaService.listarTodasParcelas();
@@ -68,12 +68,24 @@ public class ParcelaController {
         return ResponseEntity.ok(parcelaPaga);
     }
 
+    @PatchMapping("/{id}/desfazer")
+    public ResponseEntity<?> desfazerPagamento(@PathVariable Long id) {
+        try {
+            parcelaService.desfazerPagamento(id);
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parcela não encontrada");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao desfazer pagamento");
+        }
+    }
+
     @PatchMapping("/{id}/escolha")
-    public ResponseEntity<Parcela> processarEscolha(
+    public ResponseEntity<ParcelaResponseDto> processarEscolha(
             @PathVariable Long id,
             @RequestBody EscolhaDto escolhaDto) {
 
-        Parcela parcela = parcelaService.processarEscolha(id, escolhaDto);
-        return ResponseEntity.ok(parcela);
+        ParcelaResponseDto responseDto = parcelaService.processarEscolha(id, escolhaDto);
+        return ResponseEntity.ok(responseDto);
     }
 }

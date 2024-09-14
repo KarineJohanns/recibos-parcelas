@@ -1,9 +1,6 @@
 package com.gerarecibos.recibos.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -17,6 +14,8 @@ public class Cliente {
     private Long clienteId;
 
     private String clienteNome;
+
+    @Column(unique = true)
     private String clienteCpf;
     private String clienteEndereco;
     private String clienteTelefone;

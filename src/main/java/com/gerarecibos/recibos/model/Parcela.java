@@ -1,5 +1,6 @@
 package com.gerarecibos.recibos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,10 +28,10 @@ public class Parcela {
     private Produto produto;
 
     private Integer numeroParcelas;
-    private Double valorParcela;
+    private Integer valorParcela;
     private Boolean paga = false;
-    private Double valorPago;
-    private Double descontoAplicado = 0.0;
+    private Integer valorPago;
+    private Integer descontoAplicado = 0;
 
     @ManyToOne
     @JoinColumn(name = "emitente_id")
@@ -39,6 +40,7 @@ public class Parcela {
     @OneToMany(mappedBy = "parcelaOriginal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Parcela> novasParcelas = new ArrayList<>();
 
+    @JsonIgnore
     @ToString.Exclude
     @ManyToOne
     private Parcela parcelaOriginal;
@@ -50,4 +52,12 @@ public class Parcela {
     private LocalDate dataCriacao; // Data de criação da parcela
     private LocalDate dataVencimento; // Data de vencimento da parcela
     private LocalDate dataPagamento; // Data de pagamento da parcela (se houver)
+
+    public boolean isPaga() {
+        return paga;
+    }
+
+    public void setPaga(boolean paga) {
+        this.paga = paga;
+    }
 }
