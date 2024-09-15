@@ -53,6 +53,8 @@ public class Parcela {
     private LocalDate dataVencimento; // Data de vencimento da parcela
     private LocalDate dataPagamento; // Data de pagamento da parcela (se houver)
 
+    private String documento;
+
     public boolean isPaga() {
         return paga;
     }

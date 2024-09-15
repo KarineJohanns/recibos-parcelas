@@ -18,6 +18,7 @@ public class ParcelaDto {
     private String intervalo; // "MENSAL", "SEMANAL", etc.
     private LocalDate dataCriacao; // Data completa
     private LocalDate dataVencimento;
+    private String documento;
 
     // getters e setters
 }

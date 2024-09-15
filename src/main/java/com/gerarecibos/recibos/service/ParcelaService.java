@@ -73,6 +73,11 @@ public class ParcelaService {
             parcela.setNumeroParcela(i);
             parcela.setIntervalo(parcelaDto.getIntervalo());
 
+            // Define o documento da parcela
+            String documento = parcelaDto.getDocumento() != null ? parcelaDto.getDocumento() : "";
+            documento += " " + i + "/" + numeroParcelas;
+            parcela.setDocumento(documento);
+
             parcelas.add(parcela);
 
             // Se houver um resto, adiciona 1 à última parcela
@@ -238,6 +243,10 @@ public class ParcelaService {
             novaParcela.setNumeroParcela(i);
             novaParcela.setParcelaOriginal(parcelaOriginal);
             novaParcela.setEmitente(parcelaOriginal.getEmitente());
+
+            // Define o documento da parcela renegociada
+            String documento = "RENEG" + parcelaOriginal.getParcelaId() + "-" + i + "/" + numeroParcelas;
+            novaParcela.setDocumento(documento);
 
             // Adiciona o resto à última parcela
             if (i == numeroParcelas && resto > 0) {
