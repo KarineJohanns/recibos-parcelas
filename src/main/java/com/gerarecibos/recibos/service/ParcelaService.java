@@ -324,6 +324,7 @@ public class ParcelaService {
 
         // Marca a parcela original como paga
         parcela.setPaga(true);
+        parcela.setRenegociada(true);
         parcelaRepository.save(parcela); // Salva a alteração no banco de dados
 
         gerarRecibo(parcela, parcela.getValorPago(), parcela.getDataPagamento(), false, parcela.getEmitente().getEmitenteId());

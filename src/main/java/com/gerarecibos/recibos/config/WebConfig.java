@@ -16,6 +16,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH") // Métodos permitidos
                 .allowedHeaders("*") // Permite todos os cabeçalhos
                 .allowCredentials(false); // Permite envio de credenciais como cookies e headers de autorização
-        System.out.println("CARREGA ESSA BOSTA");
+        System.out.println("CORS CARREGOU CORRETAMENTE");
     }
 }

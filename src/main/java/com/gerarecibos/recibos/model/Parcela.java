@@ -2,6 +2,7 @@ package com.gerarecibos.recibos.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -44,6 +45,9 @@ public class Parcela {
     @ToString.Exclude
     @ManyToOne
     private Parcela parcelaOriginal;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean renegociada = false;
     private Integer numeroParcela; // Adicionado para armazenar o número da parcela
 
 
@@ -53,6 +57,7 @@ public class Parcela {
     private LocalDate dataVencimento; // Data de vencimento da parcela
     private LocalDate dataPagamento; // Data de pagamento da parcela (se houver)
 
+    @Size(max = 512)
     private String documento;
 
     public boolean isPaga() {

@@ -70,7 +70,7 @@ public class ReciboService {
                         .setTextAlignment(TextAlignment.LEFT))
                 .add(new Paragraph()
                         .add(new Text("VALOR: ").setBold()) // Texto "VALOR" em negrito
-                        .add(new Text(currencyFormat.format(recibo.getParcela().getValorPago())).setFontSize(16)) // Texto normal
+                        .add(new Text(currencyFormat.format(recibo.getParcela().getValorPago() / 100)).setFontSize(16)) // Texto normal
                         .setFontSize(16)
                         .setTextAlignment(TextAlignment.LEFT))
                 .setPadding(10)
@@ -97,7 +97,7 @@ public class ReciboService {
                 .add(new Text(", Portador (a) do CPF ").setFontSize(12))
                 .add(new Text(recibo.getEmitente().getEmitenteCpf()).setBold().setFontSize(12))
                 .add(new Text(", Declaro ter recebido nesta data a quantia de: ").setFontSize(12))
-                .add(new Text(currencyFormat.format(recibo.getParcela().getValorPago())).setBold().setFontSize(12))
+                .add(new Text(currencyFormat.format(recibo.getParcela().getValorPago() / 100)).setBold().setFontSize(12))
                 .add(new Text(" de ").setFontSize(12))
                 .add(new Text(recibo.getCliente().getClienteNome().toUpperCase()).setBold().setFontSize(12))
                 .add(new Text(", portador do CPF  nº ").setFontSize(12))
