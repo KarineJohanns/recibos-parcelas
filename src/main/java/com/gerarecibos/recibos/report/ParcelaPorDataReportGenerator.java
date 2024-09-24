@@ -1,87 +1,36 @@
-package com.gerarecibos.recibos.service;
+package com.gerarecibos.recibos.report;
 
-import com.gerarecibos.recibos.DTO.RelatorioRequestDTO;
+import com.gerarecibos.recibos.DTO.relatorios.TotalRelatorioDTO;
 import com.gerarecibos.recibos.model.Parcela;
-import com.gerarecibos.recibos.repository.RelatorioRepository;
-import com.gerarecibos.recibos.DTO.TotalRelatorioDTO;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class ParcelaPorDataReportGenerator extends RelatorioGenerator {
 
-@Service
-public class RelatorioService {
+    private final List<Parcela> parcelas;
+    private final TotalRelatorioDTO totais;
 
-    @Autowired
-    private RelatorioRepository relatorioRepository;
+    public ParcelaPorDataReportGenerator(List<Parcela> parcelas, TotalRelatorioDTO totais) {
+        this.parcelas = parcelas;
+        this.totais = totais;
+    }
 
-    private static final Logger logger = LoggerFactory.getLogger(RelatorioService.class);
-
-    public byte[] gerarRelatorioPdf(RelatorioRequestDTO request) throws IOException {
-        logger.info("Recebido: clienteId={}, dataInicio={}, dataFim={}, statusParcela={}",
-                request.getClienteId(),
-                request.getDataInicio(),
-                request.getDataFim(),
-                request.getStatusParcela());
-
-        // Definindo datas limite suportadas
-        LocalDate dataInicio = request.getDataInicio() != null ? request.getDataInicio() : LocalDate.of(1970, 1, 1);
-        LocalDate dataFim = request.getDataFim() != null ? request.getDataFim() : LocalDate.of(2070, 12, 31);
-        Boolean statusParcela = request.getStatusParcela();
-
-        List<Parcela> parcelas = relatorioRepository.findByClienteIdAndFilters(
-                request.getClienteId(),
-                dataInicio,
-                dataFim,
-                statusParcela
-        );
-
-        // Ordenar as parcelas por data de vencimento
-        parcelas.sort(Comparator.comparing(Parcela::getDataVencimento));
-
-        // Obtendo os totais
-        List<Object[]> resultados = relatorioRepository.findTotalByClienteIdAndFilters(
-                request.getClienteId(),
-                dataInicio,
-                dataFim,
-                statusParcela
-        );
-
-        TotalRelatorioDTO totais = new TotalRelatorioDTO();
-        if (!resultados.isEmpty()) {
-            Object[] resultado = resultados.get(0);
-            totais.setTotalPago(resultado[0] != null ? ((Long) resultado[0]).intValue() : 0);
-            totais.setTotalParcela(resultado[1] != null ? ((Long) resultado[1]).intValue() : 0);
-            totais.setDiferencaParcela(resultado[2] != null ? ((Long) resultado[2]).intValue() : 0);
-        }
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PdfWriter writer = new PdfWriter(baos);
-        PdfDocument pdfDoc = new PdfDocument(writer);
-        Document document = new Document(pdfDoc);
-
+    @Override
+    protected void addContent(Document document) throws IOException {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
         // Título do relatório
-        document.add(new Paragraph("Relatório de Parcelas")
+        document.add(new Paragraph("Relatório de Parcelas por data")
                 .setFontSize(24)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMarginBottom(20));
@@ -134,20 +83,10 @@ public class RelatorioService {
         somatoriosTable.addHeaderCell(new Cell().add(new Paragraph("Descrição").setBold()));
         somatoriosTable.addHeaderCell(new Cell().add(new Paragraph("Valor").setBold()));
 
-        somatoriosTable.addCell(new Cell().add(new Paragraph("Total Parcelas:").setFontSize(fontSize)));
-        somatoriosTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totais.getTotalParcela() / 100.0)).setFontSize(fontSize)));
-
         somatoriosTable.addCell(new Cell().add(new Paragraph("Total Pago:").setFontSize(fontSize)));
         somatoriosTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totais.getTotalPago() / 100.0)).setFontSize(fontSize)));
 
-        somatoriosTable.addCell(new Cell().add(new Paragraph("Diferença:").setBold().setFontSize(fontSize)));
-        somatoriosTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totais.getDiferencaParcela() / 100.0)).setFontSize(fontSize)));
-
         // Adiciona a tabela de somatórios ao documento
         document.add(somatoriosTable);
-
-        document.close();
-        return baos.toByteArray();
     }
-
 }

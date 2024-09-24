@@ -1,19 +1,17 @@
 package com.gerarecibos.recibos.controller;
 
 import com.gerarecibos.recibos.DTO.EscolhaDto;
-import com.gerarecibos.recibos.DTO.ParcelaDto;
-import com.gerarecibos.recibos.DTO.ParcelaPagamentoDto;
-import com.gerarecibos.recibos.DTO.ParcelaResponseDto;
+import com.gerarecibos.recibos.DTO.parcelas.ParcelaDto;
+import com.gerarecibos.recibos.DTO.parcelas.ParcelaPagamentoDto;
+import com.gerarecibos.recibos.DTO.parcelas.ParcelaResponseDto;
 import com.gerarecibos.recibos.model.Parcela;
 import com.gerarecibos.recibos.service.ParcelaService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController

@@ -1,4 +1,4 @@
-package com.gerarecibos.recibos.DTO;
+package com.gerarecibos.recibos.DTO.parcelas;
 
 import lombok.Data;
 

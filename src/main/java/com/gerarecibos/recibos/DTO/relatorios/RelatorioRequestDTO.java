@@ -1,4 +1,4 @@
-package com.gerarecibos.recibos.DTO;
+package com.gerarecibos.recibos.DTO.relatorios;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;

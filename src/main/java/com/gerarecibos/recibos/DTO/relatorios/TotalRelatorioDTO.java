@@ -1,4 +1,4 @@
-package com.gerarecibos.recibos.DTO;
+package com.gerarecibos.recibos.DTO.relatorios;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

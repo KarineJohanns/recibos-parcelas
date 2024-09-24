@@ -1,7 +1,7 @@
 package com.gerarecibos.recibos.service;
 
-import com.gerarecibos.recibos.DTO.ParcelaDto;
-import com.gerarecibos.recibos.DTO.ParcelaResponseDto;
+import com.gerarecibos.recibos.DTO.parcelas.ParcelaDto;
+import com.gerarecibos.recibos.DTO.parcelas.ParcelaResponseDto;
 import com.gerarecibos.recibos.DTO.EscolhaDto;
 import com.gerarecibos.recibos.Exceptions.ResourceNotFoundException;
 import com.gerarecibos.recibos.model.*;
