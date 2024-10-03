@@ -15,16 +15,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/parcelas")
+@RequestMapping(value = "/api/parcelas", method = RequestMethod.OPTIONS)
 public class ParcelaController {
 
     @Autowired
     private ParcelaService parcelaService;
 
     @PostMapping
-    public ResponseEntity<List<Parcela>> criarParcelas(@RequestBody ParcelaDto parcelaDto) {
-        List<Parcela> novasParcelas = parcelaService.criarParcelas(parcelaDto);
-        return new ResponseEntity<>(novasParcelas, HttpStatus.CREATED);
+    public ResponseEntity<ParcelaResponseDto> criarParcelas(@RequestBody ParcelaDto parcelaDto) {
+        ParcelaResponseDto responseDto = parcelaService.criarParcelas(parcelaDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
@@ -39,16 +39,17 @@ public class ParcelaController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Parcela> editarParcela(@PathVariable Long id, @RequestBody ParcelaDto parcelaDto) {
-        Parcela parcelaAtualizada = parcelaService.editarParcela(id, parcelaDto);
-        return ResponseEntity.ok(parcelaAtualizada);
+    public ResponseEntity<ParcelaResponseDto> editarParcela(@PathVariable Long id, @RequestBody ParcelaDto parcelaDto) {
+        ParcelaResponseDto responseDto = parcelaService.editarParcela(id, parcelaDto);
+        return ResponseEntity.ok(responseDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarParcela(@PathVariable Long id) {
-        parcelaService.deletarParcela(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ParcelaResponseDto> deletarParcela(@PathVariable Long id) {
+        ParcelaResponseDto responseDto = parcelaService.deletarParcela(id);
+        return ResponseEntity.ok(responseDto);
     }
+
 
     @PatchMapping("/{id}/pagar")
     public ResponseEntity<ParcelaResponseDto> pagarParcela(
@@ -67,15 +68,9 @@ public class ParcelaController {
     }
 
     @PatchMapping("/{id}/desfazer")
-    public ResponseEntity<?> desfazerPagamento(@PathVariable Long id) {
-        try {
-            parcelaService.desfazerPagamento(id);
-            return ResponseEntity.ok().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parcela não encontrada");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao desfazer pagamento");
-        }
+    public ResponseEntity<ParcelaResponseDto> desfazerPagamento(@PathVariable Long id) {
+        ParcelaResponseDto responseDto = parcelaService.desfazerPagamento(id); // Chama o serviço que retorna o DTO
+        return ResponseEntity.ok(responseDto); // Retorna o DTO em um ResponseEntity
     }
 
     @PatchMapping("/{id}/escolha")
@@ -84,6 +79,15 @@ public class ParcelaController {
             @RequestBody EscolhaDto escolhaDto) {
 
         ParcelaResponseDto responseDto = parcelaService.processarEscolha(id, escolhaDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PatchMapping("/{id}/renegociar")
+    public ResponseEntity<ParcelaResponseDto> renegociarParcela(
+            @PathVariable Long id,
+            @RequestBody EscolhaDto escolhaDto) {
+
+        ParcelaResponseDto responseDto = parcelaService.renegociarParcela(id, escolhaDto);
         return ResponseEntity.ok(responseDto);
     }
 }

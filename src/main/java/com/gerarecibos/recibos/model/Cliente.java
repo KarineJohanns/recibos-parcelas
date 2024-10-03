@@ -20,4 +20,15 @@ public class Cliente {
     private String clienteEndereco;
     private String clienteTelefone;
 
+    @Column(nullable = false)
+    private String senha;
+
+    @Column(nullable = false)
+    private Boolean primeiroAcesso = true; // Por padrão, assume-se que é o primeiro login
+
+
+    // Método isPrimeiroAcesso para conveniência
+    public Boolean isPrimeiroAcesso() {
+        return primeiroAcesso;
+    }
 }

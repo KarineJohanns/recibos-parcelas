@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     Optional<Cliente> findByClienteCpf(String cpf);
+    Optional<Cliente> findByClienteId(Long clienteId);
     @Query("SELECT c FROM Cliente c WHERE LOWER(c.clienteNome) LIKE LOWER(CONCAT('%', :nome, '%'))")
     List<Cliente> buscarPorNomeParcial(@Param("nome") String nome);
     boolean existsByClienteCpf(String cpf);

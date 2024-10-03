@@ -41,7 +41,7 @@ public class ParcelaService {
     private EmitenteRepository emitenteRepository;
 
     @Transactional
-    public List<Parcela> criarParcelas(ParcelaDto parcelaDto) {
+    public ParcelaResponseDto criarParcelas(ParcelaDto parcelaDto) {
         Cliente cliente = obterOuCriarCliente(parcelaDto);
         Produto produto = obterOuCriarProduto(parcelaDto);
         Emitente emitente = obterEmitente(parcelaDto.getEmitenteId());
@@ -88,7 +88,17 @@ public class ParcelaService {
             dataVencimento = calcularProximaDataVencimento(dataVencimento, parcelaDto.getIntervalo());
         }
 
-        return parcelaRepository.saveAll(parcelas);
+        // Salva todas as parcelas no banco de dados
+        List<Parcela> parcelasSalvas = parcelaRepository.saveAll(parcelas);
+
+        // Cria a resposta usando ParcelaResponseDto
+        ParcelaResponseDto responseDto = new ParcelaResponseDto();
+        responseDto.setMensagem("Parcelas criadas com sucesso!");
+        responseDto.setParcelas(parcelasSalvas);
+        responseDto.setPaga(false); // Defina de acordo com sua lógica
+        responseDto.setEscolhaNecessaria(false); // Defina de acordo com sua lógica
+
+        return responseDto;
     }
 
     private Cliente obterOuCriarCliente(ParcelaDto parcelaDto) {
@@ -164,16 +174,38 @@ public class ParcelaService {
         return parcelaRepository.findAll();
     }
 
-    public Parcela editarParcela(Long id, ParcelaDto parcelaDto) {
+    public ParcelaResponseDto editarParcela(Long id, ParcelaDto parcelaDto) {
         Parcela parcela = obterParcelaPorId(id);
+        if (parcela == null) {
+            throw new RuntimeException("Parcela não encontrada");
+        }
+
+        parcela.setDocumento(parcelaDto.getDocumento());
         parcela.setValorParcela(parcelaDto.getValorParcela());
         parcela.setDataVencimento(parcelaDto.getDataVencimento());
-        return parcelaRepository.save(parcela);
+        parcela = parcelaRepository.save(parcela);
+
+        // Criar o DTO de resposta
+        ParcelaResponseDto responseDto = new ParcelaResponseDto();
+        responseDto.setParcelaId(parcela.getParcelaId());
+        responseDto.setMensagem("Parcela atualizada com sucesso!");
+
+        return responseDto;
     }
 
-    public void deletarParcela(Long id) {
+    public ParcelaResponseDto deletarParcela(Long id) {
         Parcela parcela = obterParcelaPorId(id);
+
+        if (parcela == null) {
+            throw new RuntimeException("Parcela não encontrada");
+        }
+
         parcelaRepository.delete(parcela);
+
+        ParcelaResponseDto responseDto = new ParcelaResponseDto();
+        responseDto.setParcelaId(parcela.getParcelaId());
+        responseDto.setMensagem("Parcela deletada com sucesso!");
+        return responseDto;
     }
 
     public ParcelaResponseDto pagarParcela(Long id, Integer valorPago, LocalDate dataPagamento, Boolean gerarNovasParcelas, Integer desconto) {
@@ -351,17 +383,60 @@ public class ParcelaService {
         return responseDto;
     }
 
-
-    public void desfazerPagamento(Long id) throws EntityNotFoundException {
+    public ParcelaResponseDto renegociarParcela(Long id, EscolhaDto escolhaDto) {
+        // Recupera a parcela original a partir do ID
         Parcela parcela = parcelaRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Parcela não encontrada"));
+                .orElseThrow(() -> new RuntimeException("Parcela não encontrada"));
 
-        // Verifica se a parcela está marcada como paga e, se estiver, a marca como não paga
-        if (parcela.isPaga()) {
-            parcela.setPaga(false);
-            parcela.setDataPagamento(null); // Removendo a data de pagamento, se necessário
-            parcela.setValorPago(0); // Revertendo o valor pago, se necessário
-            parcelaRepository.save(parcela);
+        // Calcula o valor restante a ser pago como um valor inteiro (em centavos)
+        int valorRestante = parcela.getValorParcela();
+
+        // Marca a parcela original como paga
+        parcela.setPaga(true);
+        parcela.setRenegociada(true);
+        parcelaRepository.save(parcela); // Salva a alteração no banco de dados
+
+        ParcelaResponseDto responseDto = new ParcelaResponseDto();
+
+        // Verifica se novas parcelas devem ser geradas
+        if (Boolean.TRUE.equals(escolhaDto.getGerarNovasParcelas())) {
+            int numeroParcelas = escolhaDto.getNumeroParcelasRenegociacao() != null
+                    ? escolhaDto.getNumeroParcelasRenegociacao()
+                    : 1;
+            String novoIntervalo = escolhaDto.getNovoIntervalo() != null ? escolhaDto.getNovoIntervalo() : parcela.getIntervalo();
+            LocalDate dataPrimeiraParcela = escolhaDto.getDataPrimeiraParcela();  // Novo campo
+
+            // Ajusta a criação de novas parcelas para tratar valores em centavos
+            criarNovasParcelas(parcela, valorRestante, numeroParcelas, novoIntervalo, dataPrimeiraParcela);
+
+            responseDto.setMensagem("Novas parcelas foram criadas com sucesso.");
+        } else {
+            // Aplicar desconto se novas parcelas não forem geradas
+            responseDto = aplicarDesconto(parcela, valorRestante);
         }
+
+        return responseDto;
     }
+
+    public ParcelaResponseDto desfazerPagamento(Long id) {
+        // Busca a parcela pelo ID e lança uma exceção se não for encontrada
+        Parcela parcela = parcelaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Parcela não encontrada"));
+
+        // Verifica se a parcela está marcada como paga
+        if (parcela.isPaga()) {
+            // Marca a parcela como não paga e reseta os dados de pagamento
+            parcela.setPaga(false);
+            parcela.setDataPagamento(null); // Remove a data de pagamento
+            parcela.setValorPago(0); // Reverte o valor pago
+            parcelaRepository.save(parcela); // Salva as alterações na parcela
+        }
+
+        // Cria o response DTO com a mensagem de sucesso
+        ParcelaResponseDto responseDto = new ParcelaResponseDto();
+        responseDto.setParcelaId(parcela.getParcelaId()); // Define o ID da parcela
+        responseDto.setMensagem("Parcela estornada com sucesso!"); // Define a mensagem de sucesso
+        return responseDto; // Retorna o DTO com os dados da resposta
+    }
+
 }

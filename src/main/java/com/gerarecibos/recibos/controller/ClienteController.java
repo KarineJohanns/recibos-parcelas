@@ -68,4 +68,9 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponseDTO("Erro ao excluir cliente.", false));
         }
     }
+
+    @PutMapping("/{id}/senha")
+    public ResponseEntity<String> atualizarSenha(@PathVariable Long id, @RequestBody String novaSenha) {
+        return clienteService.atualizarSenha(id, novaSenha);
+    }
 }

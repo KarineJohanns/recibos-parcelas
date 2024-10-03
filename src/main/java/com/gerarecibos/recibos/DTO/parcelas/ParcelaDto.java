@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class ParcelaDto {
+public class  ParcelaDto {
 
     private Long clienteId;
     private Long produtoId;
