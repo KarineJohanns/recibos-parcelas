@@ -220,11 +220,13 @@ public class ParcelaService {
 
         if (valorPago < valorTotalParcela) {
             parcela.setPaga(true);
+            parcela.setRenegociada(true);
             parcela.setValorPago(valorPago);
             parcela.setDataPagamento(dataPagamento);
             parcelaRepository.save(parcela);
 
-            gerarRecibo(parcela, valorPago, dataPagamento, true, parcela.getEmitente().getEmitenteId());
+            // Gerar o recibo e associá-lo à parcela
+            Recibo recibo = gerarRecibo(parcela, valorPago, dataPagamento, true, parcela.getEmitente().getEmitenteId());
 
             responseDto.setEscolhaNecessaria(true);
             responseDto.setMensagem("O valor pago é menor que o valor total da parcela. Escolha entre gerar novas parcelas ou aplicar um desconto.");
@@ -234,7 +236,8 @@ public class ParcelaService {
             parcela.setDataPagamento(dataPagamento);
             parcelaRepository.save(parcela);
 
-            gerarRecibo(parcela, valorPago, dataPagamento, false, parcela.getEmitente().getEmitenteId());
+            // Gerar o recibo e associá-lo à parcela
+            Recibo recibo = gerarRecibo(parcela, valorPago, dataPagamento, false, parcela.getEmitente().getEmitenteId());
 
             responseDto.setPaga(true);
             responseDto.setEscolhaNecessaria(false);
@@ -243,6 +246,7 @@ public class ParcelaService {
 
         return responseDto;
     }
+
 
     public ParcelaResponseDto criarNovasParcelas(Parcela parcelaOriginal, int valorRestante, int numeroParcelas, String novoIntervalo, LocalDate dataPrimeiraParcela) {
         ParcelaResponseDto responseDto = new ParcelaResponseDto();
@@ -325,10 +329,8 @@ public class ParcelaService {
         return responseDto;
     }
 
-    private void gerarRecibo(Parcela parcela, long valorPago, LocalDate dataPagamento, Boolean parcial, Long emitenteId) {
+    private Recibo gerarRecibo(Parcela parcela, long valorPago, LocalDate dataPagamento, Boolean parcial, Long emitenteId) {
         Recibo recibo = new Recibo();
-        // O ID do recibo será o mesmo que o ID da parcela
-        recibo.setId(parcela.getParcelaId());
         recibo.setParcela(parcela);
 
         // Recuperar emitente do banco de dados
@@ -337,13 +339,22 @@ public class ParcelaService {
 
         recibo.setEmitente(emitente);
 
+        // Definir o conteúdo do recibo com base se é parcial ou completo
         if (parcial) {
             recibo.setConteudo("Recibo parcial da parcela " + parcela.getParcelaId() + " no valor de " + valorPago / 100.0 + " pago na data " + dataPagamento);
         } else {
             recibo.setConteudo("Recibo completo da parcela " + parcela.getParcelaId() + " no valor total de " + parcela.getValorParcela() / 100.0 + " pago na data " + dataPagamento);
         }
 
+        // Salvar o recibo no banco de dados
         reciboRepository.save(recibo);
+
+        // Agora, atribuir o recibo à parcela
+        parcela.setRecibo(recibo);
+        parcelaRepository.save(parcela); // Salvar a parcela novamente para persistir a associação
+
+        // Retornar o recibo
+        return recibo;
     }
 
     public ParcelaResponseDto processarEscolha(Long id, EscolhaDto escolhaDto) {
@@ -437,6 +448,11 @@ public class ParcelaService {
         responseDto.setParcelaId(parcela.getParcelaId()); // Define o ID da parcela
         responseDto.setMensagem("Parcela estornada com sucesso!"); // Define a mensagem de sucesso
         return responseDto; // Retorna o DTO com os dados da resposta
+    }
+
+    @Autowired
+    public ParcelaService(ReciboRepository reciboRepository) {
+        this.reciboRepository = reciboRepository;
     }
 
 }

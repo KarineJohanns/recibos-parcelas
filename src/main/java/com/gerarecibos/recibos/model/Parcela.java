@@ -14,6 +14,7 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
+@Table(name = "parcela")
 public class Parcela {
 
     @Id
@@ -59,6 +60,10 @@ public class Parcela {
 
     @Size(max = 512)
     private String documento;
+
+    @OneToOne // Relação um-para-um com Recibo
+    @JoinColumn(name = "recibo_id") // Nome da coluna na tabela parcela
+    private Recibo recibo;
 
     public boolean isPaga() {
         return paga;

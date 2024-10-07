@@ -1,5 +1,6 @@
 package com.gerarecibos.recibos.service;
 
+import com.gerarecibos.recibos.Utils.NumeroPorExtenso;
 import com.gerarecibos.recibos.model.Recibo;
 import com.gerarecibos.recibos.repository.ReciboRepository;
 import com.itextpdf.io.source.ByteArrayOutputStream;
@@ -17,6 +18,7 @@ import com.itextpdf.layout.properties.UnitValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.itextpdf.layout.element.Text;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -29,8 +31,8 @@ public class ReciboService {
 
     public byte[] gerarReciboPdf(Long parcelaId) throws IOException {
         // Obtenha o recibo do banco de dados
-        Recibo recibo = reciboRepository.findById(parcelaId)
-                .orElseThrow(() -> new RuntimeException("Recibo não encontrado"));
+        Recibo recibo = reciboRepository.findByParcelaId(parcelaId)
+                .orElseThrow(() -> new RuntimeException("Recibo não encontrado para a parcela."));
 
         // Crie um documento PDF
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -40,20 +42,25 @@ public class ReciboService {
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy");
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+
         // Obtenha a data de pagamento da parcela
         LocalDate dataPagamento = recibo.getParcela().getDataPagamento();
         String dataPagamentoFormatada = dataPagamento.format(dateFormatter);
         LocalDate dataVencimento = recibo.getParcela().getDataVencimento();
         String dataVencimentoFormatada = dataVencimento.format(dateFormatter);
 
+        // Obtenha o valor pago
+        double valorPago = recibo.getParcela().getValorPago() / 100.0;
+        String valorPagoFormatado = currencyFormat.format(valorPago);
+        String valorPorExtenso = NumeroPorExtenso.valorPorExtenso(valorPago);
+
         // Crie uma tabela com 2 colunas
         Table table = new Table(2);
         table.setWidth(UnitValue.createPercentValue(100)); // Largura da tabela em 100% da largura da página
-
-// Defina a borda externa da tabela
         table.setBorder(new SolidBorder(1)); // Borda externa da tabela
         table.setMarginBottom(5);
-// Adicione o título na primeira coluna
+
+        // Adicione o título na primeira coluna
         Cell titleCell = new Cell()
                 .add(new Paragraph("RECIBO").setFontSize(26).setBold())
                 .setTextAlignment(TextAlignment.LEFT)
@@ -61,7 +68,7 @@ public class ReciboService {
                 .setBorder(Border.NO_BORDER); // Remove as bordas da célula
         table.addCell(titleCell);
 
-// Adicione o número do recibo e o valor na segunda coluna
+        // Adicione o número do recibo e o valor na segunda coluna
         Cell receiptInfoCell = new Cell()
                 .add(new Paragraph()
                         .add(new Text("Nº: ").setBold()) // Texto "Nº" em negrito
@@ -70,40 +77,32 @@ public class ReciboService {
                         .setTextAlignment(TextAlignment.LEFT))
                 .add(new Paragraph()
                         .add(new Text("VALOR: ").setBold()) // Texto "VALOR" em negrito
-                        .add(new Text(currencyFormat.format(recibo.getParcela().getValorPago() / 100)).setFontSize(16)) // Texto normal
+                        .add(new Text(valorPagoFormatado).setFontSize(16)) // Texto normal
                         .setFontSize(16)
                         .setTextAlignment(TextAlignment.LEFT))
                 .setPadding(10)
                 .setBorder(Border.NO_BORDER); // Remove as bordas da célula
-
         table.addCell(receiptInfoCell);
 
-        //CORPO DO RECIBO
-
-        // Crie uma nova tabela com uma única coluna
+        // Crie uma nova tabela com uma única coluna para o corpo do recibo
         Table declarationTable = new Table(1);
         declarationTable.setWidth(UnitValue.createPercentValue(100));
         declarationTable.setBorder(new SolidBorder(1));
 
-
-
-// Crie uma célula para o texto com formatação
+        // Adicionar o texto formatado com o valor por extenso
         Cell declarationCell = new Cell().setBorder(Border.NO_BORDER);
-
-// Adicionar o texto formatado
         declarationCell.add(new Paragraph()
                 .add(new Text("Eu, ").setFontSize(12))
                 .add(new Text(recibo.getEmitente().getEmitenteNome().toUpperCase()).setBold().setFontSize(12))
                 .add(new Text(", Portador (a) do CPF ").setFontSize(12))
                 .add(new Text(recibo.getEmitente().getEmitenteCpf()).setBold().setFontSize(12))
                 .add(new Text(", Declaro ter recebido nesta data a quantia de: ").setFontSize(12))
-                .add(new Text(currencyFormat.format(recibo.getParcela().getValorPago() / 100)).setBold().setFontSize(12))
+                .add(new Text(valorPagoFormatado + " (" + valorPorExtenso + ")").setBold().setFontSize(12)) // Inclui o valor por extenso
                 .add(new Text(" de ").setFontSize(12))
                 .add(new Text(recibo.getCliente().getClienteNome().toUpperCase()).setBold().setFontSize(12))
-                .add(new Text(", portador do CPF  nº ").setFontSize(12))
+                .add(new Text(", portador do CPF nº ").setFontSize(12))
                 .add(new Text(recibo.getCliente().getClienteCpf()).setFontSize(12))
-                .add(new Text(", "))
-                .add(new Text( "REFERENTE AO PAGAMENTO DO DOCUMENTO ").setBold().setFontSize(12))
+                .add(new Text(", REFERENTE AO PAGAMENTO DO DOCUMENTO ").setBold().setFontSize(12))
                 .add(new Text(recibo.getParcela().getDocumento()).setBold().setFontSize(12))
                 .add(new Text(", com vencimento para dia ").setFontSize(12))
                 .add(new Text(dataVencimentoFormatada))
@@ -119,7 +118,7 @@ public class ReciboService {
         declarationTable.addCell(declarationCell);
 
         declarationTable.addCell(new Cell()
-                .add(new Paragraph(". E para maior clareza, afirmo o presente.")
+                .add(new Paragraph("E para maior clareza, afirmo o presente.")
                         .setTextAlignment(TextAlignment.LEFT)
                         .setFontSize(12))
                 .setBorder(Border.NO_BORDER)
@@ -141,7 +140,7 @@ public class ReciboService {
                         .setTextAlignment(TextAlignment.CENTER)
                         .setFontSize(12))
                 .setBorder(Border.NO_BORDER)
-                .setPaddingTop(25)
+                .setPaddingTop(35)
                 .setPaddingBottom(5)
         );
 

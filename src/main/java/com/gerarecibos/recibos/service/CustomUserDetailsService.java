@@ -22,8 +22,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         Optional<Cliente> clienteOpt = clienteRepository.findByClienteCpf(cpf);
         if (clienteOpt.isPresent()) {
             Cliente cliente = clienteOpt.get();
-            // Adicione logs aqui para verificar os dados do cliente
-            System.out.println("CustomUserDetailsService: " + cliente.getClienteCpf() + " Senha: " + cliente.getSenha() + " FIM");
             return new org.springframework.security.core.userdetails.User(cliente.getClienteCpf(), cliente.getSenha(), new ArrayList<>());
         } else {
             throw new UsernameNotFoundException("Usuário não encontrado com CPF: " + cpf);

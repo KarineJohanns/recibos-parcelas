@@ -1,5 +1,6 @@
 package com.gerarecibos.recibos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class Cliente {
     private String clienteEndereco;
     private String clienteTelefone;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String senha;
 

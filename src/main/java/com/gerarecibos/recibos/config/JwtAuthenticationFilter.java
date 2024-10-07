@@ -28,7 +28,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -39,13 +38,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = null;
         String jwt = null;
 
-        logger.info("Intercepting request to: {}", request.getRequestURI()); // Log da URL interceptada
-
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7); // Remove "Bearer "
-            System.out.println("Token JWT encontrado: {} " + jwt);
             username = jwtUtil.extractUsername(jwt);
-            System.out.println("Username extraído do JWT: {} "+ username);
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -58,9 +53,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                System.out.println("header: " + authorizationHeader);
-                System.out.println("token: " + authenticationToken.getCredentials());
-                System.out.println("token: " + authenticationToken.isAuthenticated());
                 // Defina o usuário autenticado no contexto de segurança
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             } else {

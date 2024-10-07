@@ -19,6 +19,7 @@ public class  ParcelaDto {
     private LocalDate dataCriacao; // Data completa
     private LocalDate dataVencimento;
     private String documento;
+    private String parcelaFileName;
 
     // getters e setters
 }

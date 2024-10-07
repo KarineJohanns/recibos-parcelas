@@ -49,9 +49,6 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO request) {
         try {
-            // Log para verificar a senha diretamente
-            System.out.println("Tentando autenticar com CPF: " + request.getCpf() + " e Senha: " + request.getSenha());
-
             // Autenticar o usuário
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getCpf(), request.getSenha()));
