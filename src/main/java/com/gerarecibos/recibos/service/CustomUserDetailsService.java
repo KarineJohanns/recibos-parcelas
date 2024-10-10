@@ -1,6 +1,7 @@
 package com.gerarecibos.recibos.service;
 
 import com.gerarecibos.recibos.model.Cliente;
+import com.gerarecibos.recibos.model.CustomUserDetails;
 import com.gerarecibos.recibos.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +23,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         Optional<Cliente> clienteOpt = clienteRepository.findByClienteCpf(cpf);
         if (clienteOpt.isPresent()) {
             Cliente cliente = clienteOpt.get();
-            return new org.springframework.security.core.userdetails.User(cliente.getClienteCpf(), cliente.getSenha(), new ArrayList<>());
+            // Retorna a instância de CustomUserDetails com clienteId, cpf e senha
+            return new CustomUserDetails(cliente.getClienteId(), cliente.getClienteCpf(), cliente.getSenha(), new ArrayList<>());
         } else {
             throw new UsernameNotFoundException("Usuário não encontrado com CPF: " + cpf);
         }

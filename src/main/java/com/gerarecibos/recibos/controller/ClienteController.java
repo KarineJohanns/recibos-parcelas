@@ -2,6 +2,7 @@ package com.gerarecibos.recibos.controller;
 
 import com.gerarecibos.recibos.DTO.ApiResponseDTO;
 import com.gerarecibos.recibos.DTO.ClienteDto;
+import com.gerarecibos.recibos.DTO.login.AlterarSenhaRequestDTO;
 import com.gerarecibos.recibos.Exceptions.ClienteVinculadoException;
 import com.gerarecibos.recibos.model.Cliente;
 import com.gerarecibos.recibos.service.ClienteService;
@@ -67,10 +68,5 @@ public class ClienteController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponseDTO("Erro ao excluir cliente.", false));
         }
-    }
-
-    @PutMapping("/{id}/senha")
-    public ResponseEntity<String> atualizarSenha(@PathVariable Long id, @RequestBody String novaSenha) {
-        return clienteService.atualizarSenha(id, novaSenha);
     }
 }

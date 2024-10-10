@@ -1,13 +1,22 @@
 package com.gerarecibos.recibos.service;
 
 import com.gerarecibos.recibos.DTO.ClienteDto;
+import com.gerarecibos.recibos.DTO.login.AlterarSenhaPrimeiroAcessoDTO;
+import com.gerarecibos.recibos.DTO.login.AlterarSenhaRequestDTO;
 import com.gerarecibos.recibos.Exceptions.ClienteVinculadoException;
 import com.gerarecibos.recibos.Exceptions.ResourceNotFoundException;
 import com.gerarecibos.recibos.model.Cliente;
+import com.gerarecibos.recibos.model.CustomUserDetails;
 import com.gerarecibos.recibos.repository.ClienteRepository;
 import com.gerarecibos.recibos.repository.ParcelaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import com.gerarecibos.recibos.Utils.SenhaUtil;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class ClienteService {
@@ -100,14 +110,28 @@ public class ClienteService {
         clienteRepository.delete(cliente);
     }
 
-    public ResponseEntity<String> atualizarSenha(Long clienteId, String novaSenha) {
+    public ResponseEntity<String> atualizarSenha(Long clienteId, String senhaAtual, String novaSenha) {
         // Buscar o cliente pelo ID
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado."));
 
+        // Verificar se a senha atual informada corresponde à senha armazenada
+        if (!passwordEncoder.matches(senhaAtual, cliente.getSenha())) {
+            return ResponseEntity.badRequest().body("Senha atual informada está incorreta.");
+        }
+
+        // Validar a nova senha (ex: força da senha, tamanho mínimo, etc.)
+        if (!validarNovaSenha(novaSenha)) {
+            return ResponseEntity.badRequest().body("A nova senha não atende aos requisitos mínimos de segurança.");
+        }
+
         // Atualizar a senha criptografada
         cliente.setSenha(passwordEncoder.encode(novaSenha));
-        cliente.setPrimeiroAcesso(false); // Definindo como não sendo o primeiro acesso
+
+        // Se for o primeiro acesso, alterar o estado
+        if (cliente.isPrimeiroAcesso()) {
+            cliente.setPrimeiroAcesso(false);
+        }
 
         // Salvar as alterações
         clienteRepository.save(cliente);
@@ -115,8 +139,53 @@ public class ClienteService {
         return ResponseEntity.ok("Senha atualizada com sucesso.");
     }
 
-    public ResponseEntity<String> resetarSenha(Long clienteId) {
-        Cliente cliente = clienteRepository.findById(clienteId)
+    public ResponseEntity<String> alterarSenhaPrimeiroAcesso(AlterarSenhaPrimeiroAcessoDTO request) {
+        // Buscar cliente pelo CPF
+        Cliente cliente = clienteRepository.findByClienteCpf(request.getCpf())
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado."));
+
+        // Verificar se é o primeiro acesso
+        if (!cliente.isPrimeiroAcesso()) {
+            return ResponseEntity.badRequest().body("Este cliente não é elegível para primeiro acesso.");
+        }
+
+        // Verificar se a senha atual informada corresponde à senha armazenada
+        if (!passwordEncoder.matches(request.getSenhaAtual(), cliente.getSenha())) {
+            return ResponseEntity.badRequest().body("Senha atual informada está incorreta.");
+        }
+
+        // Validar a nova senha
+        if (!validarNovaSenha(request.getNovaSenha())) {
+            return ResponseEntity.badRequest().body("A nova senha não atende aos requisitos mínimos de segurança.");
+        }
+
+        // Atualizar a senha criptografada
+        cliente.setSenha(passwordEncoder.encode(request.getNovaSenha()));
+        cliente.setPrimeiroAcesso(false); // Marcar como não sendo o primeiro acesso
+
+        // Salvar as alterações
+        clienteRepository.save(cliente);
+
+        return ResponseEntity.ok("Senha atualizada com sucesso.");
+    }
+
+    private boolean validarNovaSenha(String senha) {
+        // Validação simples: por exemplo, senha deve ter pelo menos 8 caracteres
+        return senha != null && senha.length() >= 8;
+    }
+
+    private Long getClienteIdFromUserDetails() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            return userDetails.getClienteId(); // Retorna o ID do cliente
+        }
+        throw new RuntimeException("Cliente não autenticado.");
+    }
+
+
+    public String recuperarSenha(String cpf) {
+        Cliente cliente = clienteRepository.findByClienteCpf(cpf)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado."));
 
         // Gerar e criptografar a senha temporária
@@ -128,7 +197,33 @@ public class ClienteService {
         // Salva o cliente com a nova senha temporária
         clienteRepository.save(cliente);
 
+        // Enviar a senha temporária via WhatsApp
+        String mensagem = "Sua senha temporária é: " + senhaTemporaria;
+        String phoneNumber = cliente.getClienteTelefone(); // supondo que você tenha o número de telefone no cliente
+
+        enviarMensagemWhatsApp(phoneNumber, mensagem);
+
         // Retorna a senha temporária na resposta (somente para exibição, não será armazenada)
-        return ResponseEntity.ok("Senha temporária redefinida com sucesso. Senha temporária: " + senhaTemporaria);
+        return "Senha redefinida com sucesso. Senha temporária: " + senhaTemporaria;
+    }
+
+    private void enviarMensagemWhatsApp(String phoneNumber, String message) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://localhost:3000/send-message"; // URL do seu servidor Node.js
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+        // Cria o corpo da requisição
+        String jsonBody = String.format("{\"phoneNumber\":\"%s\", \"message\":\"%s\"}", phoneNumber, message);
+        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+        // Faz a chamada ao endpoint do Node.js
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+
+        // Você pode verificar a resposta se necessário
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Erro ao enviar a mensagem pelo WhatsApp.");
+        }
     }
 }

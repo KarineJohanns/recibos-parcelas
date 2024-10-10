@@ -53,7 +53,7 @@ public class SecurityConfig {
                 .and()
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/login", "/api/alterar-senha").permitAll()
+                .requestMatchers("/api/login", "/api/alterar-senha", "/api/alterar-senha-primeiro-acesso", "/api/recuperar-senha").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // Não cria sessão

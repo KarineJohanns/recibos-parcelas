@@ -18,6 +18,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -63,10 +66,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    private static final Set<String> EXCLUDED_PATHS = new HashSet<>();
+
+    static {
+        EXCLUDED_PATHS.add("/api/login");
+        EXCLUDED_PATHS.add("/api/alterar-senha");
+        // Adicione mais rotas que não devem passar pelo filtro
+        EXCLUDED_PATHS.add("/api/alterar-senha-primeiro-acesso");
+        EXCLUDED_PATHS.add("/api/recuperar-senha");
+        // Adicione mais rotas conforme necessário
+    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        // Evita o filtro em rotas públicas como login e alteração de senha
-        return path.equals("/api/login") || path.equals("/api/alterar-senha");
+        // Verifica se o caminho está no conjunto de rotas excluídas
+        return EXCLUDED_PATHS.contains(path);
     }
 }
