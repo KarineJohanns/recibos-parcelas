@@ -10,6 +10,7 @@ import com.gerarecibos.recibos.model.CustomUserDetails;
 import com.gerarecibos.recibos.repository.ClienteRepository;
 import com.gerarecibos.recibos.repository.ParcelaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -207,9 +208,11 @@ public class ClienteService {
         return "Senha redefinida com sucesso. Senha temporária: " + senhaTemporaria;
     }
 
+    @Value("${whatsapp.api.url}")
+    private String whatsappApiUrl; // URL será lida da variável de ambiente
+
     private void enviarMensagemWhatsApp(String phoneNumber, String message) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:3000/send-message"; // URL do seu servidor Node.js
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
@@ -219,7 +222,7 @@ public class ClienteService {
         HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
 
         // Faz a chamada ao endpoint do Node.js
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(whatsappApiUrl, HttpMethod.POST, entity, String.class);
 
         // Você pode verificar a resposta se necessário
         if (!response.getStatusCode().is2xxSuccessful()) {
