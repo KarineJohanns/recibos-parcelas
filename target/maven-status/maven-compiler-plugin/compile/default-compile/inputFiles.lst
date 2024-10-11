@@ -3,6 +3,7 @@ C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\confi
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\config\WebConfig.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\ClienteController.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\EmitenteController.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\FileStorageController.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\LoginController.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\ParcelaController.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\controller\ProdutoController.java
@@ -12,10 +13,11 @@ C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\A
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\ClienteDto.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\EmitenteDto.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\EscolhaDto.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\login\AlterarSenhaPrimeiroAcessoDTO.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\login\AlterarSenhaRequestDTO.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\login\LoginRequestDTO.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\login\LoginResponseDTO.java
-C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\login\ResetSenhaRequestDTO.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\login\RecuperarSenhaRequestDTO.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\PagamentoDto.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\parcelas\ParcelaDto.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\parcelas\ParcelaPagamentoDto.java
@@ -27,7 +29,9 @@ C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\DTO\r
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\Exceptions\ClienteVinculadoException.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\Exceptions\GlobalExceptionHandler.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\Exceptions\ResourceNotFoundException.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\FileStorageProperties.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\model\Cliente.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\model\CustomUserDetails.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\model\Emitente.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\model\Parcela.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\model\Produto.java
@@ -56,4 +60,5 @@ C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\servi
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\Utils\FormatUtils.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\Utils\JwtResponse.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\Utils\JwtUtil.java
+C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\Utils\NumeroPorExtenso.java
 C:\Temp\ws-intellij\recibos-parcelas\src\main\java\com\gerarecibos\recibos\Utils\SenhaUtil.java
